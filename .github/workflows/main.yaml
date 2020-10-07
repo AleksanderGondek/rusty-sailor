@@ -1,0 +1,17 @@
+
+name: "rusty-sailor-main-ci"
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: cachix/install-nix-action@v8
+    - name: Compile rust code
+      run: |
+        nix-shell ./shell.nix --pure --run 'cargo build'
