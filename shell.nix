@@ -12,7 +12,6 @@ pkgs.mkShell {
     bash
     busybox
     cacert
-    dhall
     rustup
   ];
 
