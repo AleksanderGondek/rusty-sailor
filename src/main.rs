@@ -7,8 +7,14 @@ fn main() {
   match settings {
     Ok(x) => {
       println!("Debug: {}", x.debug);
-      println!("Pki.test: {}", x.pki.test);
-      println!("Pki.ca.test_two: {}", x.pki.ca.test_two);
+      println!("Pki.rsa_size: {}", x.pki.rsa_size);
+      println!("Pki.ca.common_name: {}", x.pki.ca.common_name);
+      println!("Pki.ca.country_name: {}", x.pki.ca.country_name);
+      println!("Pki.ca.locality: {}", x.pki.ca.locality);
+      println!("Pki.ca.organization: {}", x.pki.ca.organization);
+      println!("Pki.ca.organizational_unit: {}", x.pki.ca.organizational_unit);
+      println!("Pki.ca.state: {}", x.pki.ca.state);
+      println!("Pki.ca.expiry_in_days: {}", x.pki.ca.expiry_in_days);
     },
     Err(_) => {},
   }

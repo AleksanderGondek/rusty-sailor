@@ -1,7 +1,12 @@
 debug = true
 
 [pki]
-test = "test"
+rsa_size = 4096
 [pki.ca]
-test_two = "test_two"
-
+common_name = "rusty-sailor-ca.svc.cluster.local"
+country_name = "PL"
+locality = "Gdansk"
+organization = "Rusty sailors ltd."
+organizational_unit = "R&D"
+state = "Pomorskie"
+expiry_in_days = 3650
