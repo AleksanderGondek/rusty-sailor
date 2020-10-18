@@ -8,6 +8,7 @@ fn main() {
     Ok(x) => {
       println!("Debug: {}", x.debug);
       println!("Pki.test: {}", x.pki.test);
+      println!("Pki.ca.test_two: {}", x.pki.ca.test_two);
     },
     Err(_) => {},
   }

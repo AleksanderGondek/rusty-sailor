@@ -2,8 +2,14 @@ use config::{Config, ConfigError, File};
 use serde::{Deserialize};
 
 #[derive(Debug, Deserialize)]
+pub struct CaSettings {
+    pub test_two: String
+}
+
+#[derive(Debug, Deserialize)]
 pub struct PkiSettings {
-    pub test: String
+    pub test: String,
+    pub ca: CaSettings
 }
 
 #[derive(Debug, Deserialize)]

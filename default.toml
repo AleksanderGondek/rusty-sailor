@@ -2,3 +2,6 @@ debug = true
 
 [pki]
 test = "test"
+[pki.ca]
+test_two = "test_two"
+
