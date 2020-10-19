@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 serde = { version = "1.0.116", features = ["derive"] }
 config = { version = "0.10.1", features = ["toml"] }
+openssl = { version = "0.10.30" }

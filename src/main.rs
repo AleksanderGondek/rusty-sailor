@@ -1,5 +1,3 @@
-extern crate rusty_sailor;
-
 fn main() {
   let settings = rusty_sailor::config::Settings::new();
 

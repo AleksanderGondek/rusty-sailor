@@ -1,5 +1,5 @@
 use config::{Config, ConfigError, File};
-use serde::{Deserialize};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct CaSettings {
@@ -16,7 +16,7 @@ pub struct CaSettings {
 
 #[derive(Debug, Deserialize)]
 pub struct PkiSettings {
-    pub rsa_size: u16,
+    pub rsa_size: u32,
     pub ca: CaSettings
 }
 
