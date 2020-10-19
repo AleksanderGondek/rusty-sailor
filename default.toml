@@ -3,7 +3,7 @@ debug = true
 [pki]
 rsa_size = 4096
 [pki.ca]
-common_name = "rusty-sailor-ca.svc.cluster.local"
+common_name = "rusty-sailor-ca"
 country_name = "PL"
 locality = "Gdansk"
 organization = "Rusty sailors ltd."
