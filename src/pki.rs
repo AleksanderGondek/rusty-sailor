@@ -1,3 +1,7 @@
+use std::fs::File;
+use std::io::Error;
+use std::io::prelude::Write;
+
 use openssl::x509::{X509, X509Name};
 use openssl::pkey::PKey;
 use openssl::pkey::Private;
@@ -26,4 +30,16 @@ pub fn create_ca_certificate(
 
   let certificate: X509 = builder.build();
   Ok((pkey, certificate))
+}
+
+pub fn save_as_pem_private_key(key: PKey<Private>) -> Result<(), Error> {
+  let mut file = File::create("test2.pem")?;
+  file.write_all(&key.private_key_to_pem_pkcs8()?)?;
+  Ok(())
+}
+
+pub fn save_as_pem_certificate(certificate: X509) -> Result<(), Error> {
+  let mut file = File::create("test.pem")?;
+  file.write_all(&certificate.to_pem()?)?;
+  Ok(())
 }
