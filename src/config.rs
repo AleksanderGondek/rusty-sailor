@@ -11,7 +11,7 @@ pub struct CaSettings {
     pub organizational_unit: String,
     pub state: String, 
 
-    pub expiry_in_days: u16
+    pub expiry_in_days: u32
 }
 
 #[derive(Debug, Deserialize)]

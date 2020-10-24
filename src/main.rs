@@ -13,6 +13,17 @@ fn main() {
       println!("Pki.ca.organizational_unit: {}", x.pki.ca.organizational_unit);
       println!("Pki.ca.state: {}", x.pki.ca.state);
       println!("Pki.ca.expiry_in_days: {}", x.pki.ca.expiry_in_days);
+
+      let result = rusty_sailor::pki::create_ca_certificate(&x.pki);
+      match result {
+        Ok((private_key, ca_cert)) => {
+          rusty_sailor::pki::save_as_pem_private_key(private_key);
+          rusty_sailor::pki::save_as_pem_certificate(ca_cert);
+        }
+        Err(_) => {
+          println!("Failed to create ca certificate!");
+        }
+      }
     },
     Err(_) => {},
   }
