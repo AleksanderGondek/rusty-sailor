@@ -12,6 +12,7 @@ pkgs.mkShell {
     bash
     busybox
     cacert
+    openssl
     rustup
   ];
 

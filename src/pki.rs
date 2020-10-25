@@ -209,14 +209,20 @@ pub fn create_ca_signed_certificate(
   Ok((private_key, cert))
 }
 
-pub fn save_as_pem_private_key(key: &PKey<Private>) -> Result<(), Error> {
-  let mut file = File::create("test.private-key.pem")?;
+pub fn save_as_pem_private_key(
+  key: &PKey<Private>,
+  filename: &String
+) -> Result<(), Error> {
+  let mut file = File::create(filename)?;
   file.write_all(&key.private_key_to_pem_pkcs8()?)?;
   Ok(())
 }
 
-pub fn save_as_pem_certificate(certificate: &X509) -> Result<(), Error> {
-  let mut file = File::create("test.pem")?;
+pub fn save_as_pem_certificate(
+  certificate: &X509,
+  filename: &String
+) -> Result<(), Error> {
+  let mut file = File::create(filename)?;
   file.write_all(&certificate.to_pem()?)?;
   Ok(())
 }
