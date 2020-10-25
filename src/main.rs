@@ -17,8 +17,23 @@ fn main() {
       let result = rusty_sailor::pki::create_ca_certificate(&x.pki);
       match result {
         Ok((private_key, ca_cert)) => {
-          rusty_sailor::pki::save_as_pem_private_key(private_key);
-          rusty_sailor::pki::save_as_pem_certificate(ca_cert);
+          rusty_sailor::pki::save_as_pem_private_key(&private_key);
+          rusty_sailor::pki::save_as_pem_certificate(&ca_cert);
+
+          let second_result = rusty_sailor::pki::create_ca_signed_certificate(
+            &x.pki,
+            private_key,
+            ca_cert,
+            "blackwood".to_string(),
+            13,
+            Some(vec!["blackwood.local".to_string()]),
+            Some(vec!["127.0.0.1".to_string()])
+          );
+
+          if let Ok((pkey, cert)) = second_result {
+            rusty_sailor::pki::save_as_pem_private_key(&pkey);
+            rusty_sailor::pki::save_as_pem_certificate(&cert);
+          }
         }
         Err(_) => {
           println!("Failed to create ca certificate!");

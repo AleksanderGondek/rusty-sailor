@@ -1,12 +1,13 @@
 debug = true
 
 [pki]
-rsa_size = 4096
-[pki.ca]
-common_name = "rusty-sailor-ca"
 country_name = "PL"
 locality = "Gdansk"
 organization = "Rusty sailors ltd."
 organizational_unit = "R&D"
 state = "Pomorskie"
+email_address = "rust-sailor@k8s.eu"
+rsa_size = 4096
+[pki.ca]
+common_name = "rusty-sailor-ca"
 expiry_in_days = 3650

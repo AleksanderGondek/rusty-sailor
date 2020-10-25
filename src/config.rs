@@ -14,7 +14,8 @@ pub struct PkiSettings {
     pub locality: String,
     pub organization: String,
     pub organizational_unit: String,
-    pub state: String, 
+    pub state: String,
+    pub email_address: String, 
 
     pub rsa_size: u32,
     pub ca: CaSettings
