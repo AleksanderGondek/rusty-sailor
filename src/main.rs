@@ -20,12 +20,12 @@ fn main() {
 
       let second_result = rusty_sailor::pki::create_ca_signed_certificate(
         &x.pki,
-        private_key,
-        ca_cert,
-        "blackwood".to_string(),
-        13,
-        Some(vec!["blackwood.local".to_string()]),
-        Some(vec!["127.0.0.1".to_string()])
+        &private_key,
+        &ca_cert,
+        &"blackwood".to_string(),
+        &13,
+        &Some(vec!["blackwood.local".to_string()]),
+        &Some(vec!["127.0.0.1".to_string()])
       );
 
       if let Ok((pkey, cert)) = second_result {

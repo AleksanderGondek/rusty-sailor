@@ -131,12 +131,12 @@ pub fn create_ca_certificate(
 
 pub fn create_ca_signed_certificate(
   settings: &config::PkiSettings,
-  ca_private_key: PKey<Private>,
-  ca_cert: X509,
-  common_name: String,
-  expiry_in_days: u32,
-  alt_names_dns: Option<Vec<String>>,
-  alt_names_ip: Option<Vec<String>>
+  ca_private_key: &PKey<Private>,
+  ca_cert: &X509,
+  common_name: &String,
+  expiry_in_days: &u32,
+  alt_names_dns: &Option<Vec<String>>,
+  alt_names_ip: &Option<Vec<String>>
 ) -> Result<(PKey<Private>, X509), ErrorStack> {
   let private_key = PKey::from_rsa(
     Rsa::generate(settings.rsa_size)?
@@ -165,7 +165,7 @@ pub fn create_ca_signed_certificate(
   let not_before = Asn1Time::days_from_now(0)?;
   cert.set_not_before(&not_before)?;
   let not_after = Asn1Time::days_from_now(
-    expiry_in_days
+    *expiry_in_days
   )?;
   cert.set_not_after(&not_after)?;
 
