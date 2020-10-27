@@ -14,6 +14,7 @@ use openssl::x509::extension::{
   AuthorityKeyIdentifier, BasicConstraints, KeyUsage, 
   SubjectAlternativeName, SubjectKeyIdentifier
 };
+use openssl::x509::store::{X509Store, X509StoreBuilder};
 
 use crate::config;
 
@@ -225,4 +226,32 @@ pub fn save_as_pem_certificate(
   let mut file = File::create(filename)?;
   file.write_all(&certificate.to_pem()?)?;
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cert_validation() -> Result<(), Error>{
+      match config::Settings::new() {
+        Ok(settings) => {
+          let (ca_pkey, ca_cert) = create_ca_certificate(&settings.pki)?;
+          let (pkey, cert) = create_ca_signed_certificate(
+            &settings.pki,
+            &ca_pkey,
+            &ca_cert,
+            &"blackwood".to_string(),
+            &13,
+            &Some(vec!["blackwood.local".to_string()]),
+            &Some(vec!["127.0.0.1".to_string()])
+          )?;
+          // How to verify?!
+          Ok(())
+        },
+        _ => {
+          Err(Error::new(std::io::ErrorKind::Other, "Failed to create config"))
+        }
+      }
+    }
 }
