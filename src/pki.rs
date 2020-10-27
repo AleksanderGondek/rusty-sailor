@@ -9,7 +9,10 @@ use openssl::hash::MessageDigest;
 use openssl::nid::Nid;
 use openssl::pkey::{PKey, Private};
 use openssl::rsa::Rsa;
-use openssl::x509::{X509, X509Name, X509Req, X509ReqBuilder};
+use openssl::x509::{
+  X509, X509Name, X509Req, 
+  X509ReqBuilder, X509StoreContext
+};
 use openssl::x509::extension::{
   AuthorityKeyIdentifier, BasicConstraints, KeyUsage, 
   SubjectAlternativeName, SubjectKeyIdentifier
@@ -246,7 +249,14 @@ mod tests {
             &Some(vec!["blackwood.local".to_string()]),
             &Some(vec!["127.0.0.1".to_string()])
           )?;
-          // How to verify?!
+          let mut store = X509StoreBuilder::new()?;
+          store.add_cert(ca_cert)?;
+
+          let store = store.build();
+          let chain = openssl::stack::Stack::new()?;
+          let mut context = X509StoreContext::new()?;
+
+          assert!(context.init(&store, &cert, &chain, |c| c.verify_cert()).is_ok());
           Ok(())
         },
         _ => {
