@@ -12,6 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: cachix/install-nix-action@v8
-    - name: Compile rust code
+    - name: Compile rust code & run tests
       run: |
         nix-shell ./shell.nix --pure --run 'cargo build && cargo test'
