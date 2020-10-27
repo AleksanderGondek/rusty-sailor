@@ -14,4 +14,4 @@ jobs:
     - uses: cachix/install-nix-action@v8
     - name: Compile rust code
       run: |
-        nix-shell ./shell.nix --pure --run 'cargo build'
+        nix-shell ./shell.nix --pure --run 'cargo build && cargo test'
