@@ -2,6 +2,7 @@
 name = "rusty-sailor"
 version = "0.0.1"
 authors = ["Aleksander Gondek"]
+description = "Single-binary k8s installer for bare metal (one-node, multi-node)"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

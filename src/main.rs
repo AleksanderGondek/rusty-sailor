@@ -1,4 +1,22 @@
+use clap::{
+  crate_authors, crate_description, crate_name, crate_version, 
+  App, Arg
+};
+
 fn main() {
+  let matches = App::new(crate_name!())
+    .version(crate_version!())
+    .author(crate_authors!())
+    .about(crate_description!())
+    .arg(
+      Arg::with_name("version")
+        .long("version")  
+        .short("v")
+        .takes_value(false)
+        .help("Prints current rusty-sailor version"),        
+    )
+    .get_matches();
+
   let settings = rusty_sailor::config::Settings::new();
 
   println!("Hello, world!");
