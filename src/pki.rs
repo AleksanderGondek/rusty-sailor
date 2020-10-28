@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::Error;
-use std::io::prelude::Write;
+use std::io::prelude::{Read, Write};
 
 use openssl::asn1::Asn1Time;
 use openssl::bn::{BigNum, MsbOption};
@@ -10,20 +10,18 @@ use openssl::nid::Nid;
 use openssl::pkey::{PKey, Private};
 use openssl::rsa::Rsa;
 use openssl::x509::{
-  X509, X509Name, X509Req, 
-  X509ReqBuilder, X509StoreContext
+  X509, X509Name, X509Req, X509ReqBuilder
 };
 use openssl::x509::extension::{
   AuthorityKeyIdentifier, BasicConstraints, KeyUsage, 
   SubjectAlternativeName, SubjectKeyIdentifier
 };
-use openssl::x509::store::{X509Store, X509StoreBuilder};
 
 use crate::config;
 
 fn _create_cert_name(
   settings: &config::PkiSettings,
-  common_name: &String
+  common_name: &str
 ) -> Result<X509Name, ErrorStack> {
   let mut name = X509Name::builder()?;
   name.append_entry_by_nid(
@@ -54,7 +52,7 @@ fn _create_cert_name(
 fn _create_csr(
   settings: &config::PkiSettings,
   private_key: &PKey<Private>,
-  common_name: &String
+  common_name: &str
 ) -> Result<X509Req, ErrorStack> {
   let mut csr = X509ReqBuilder::new()?;
   csr.set_pubkey(&private_key)?;
@@ -137,7 +135,7 @@ pub fn create_ca_signed_certificate(
   settings: &config::PkiSettings,
   ca_private_key: &PKey<Private>,
   ca_cert: &X509,
-  common_name: &String,
+  common_name: &str,
   expiry_in_days: &u32,
   alt_names_dns: &Option<Vec<String>>,
   alt_names_ip: &Option<Vec<String>>
@@ -215,7 +213,7 @@ pub fn create_ca_signed_certificate(
 
 pub fn save_as_pem_private_key(
   key: &PKey<Private>,
-  filename: &String
+  filename: &str
 ) -> Result<(), Error> {
   let mut file = File::create(filename)?;
   file.write_all(&key.private_key_to_pem_pkcs8()?)?;
@@ -224,23 +222,45 @@ pub fn save_as_pem_private_key(
 
 pub fn save_as_pem_certificate(
   certificate: &X509,
-  filename: &String
+  filename: &str
 ) -> Result<(), Error> {
   let mut file = File::create(filename)?;
   file.write_all(&certificate.to_pem()?)?;
   Ok(())
 }
 
+pub fn load_pem_certificate(
+  filepath: &str
+) -> Result<X509, Error> {
+  let mut file = File::open(filepath)?;
+  let mut pem_bytes = Vec::new();
+  
+  file.read_to_end(&mut  pem_bytes)?;
+  Ok(X509::from_pem(&pem_bytes)?)
+}
+
+pub fn load_pem_private_key(
+  filepath: &str
+) -> Result<PKey<Private>, Error> {
+  let mut file = File::open(filepath)?;
+  let mut pem_bytes = Vec::new();
+  
+  file.read_to_end(&mut  pem_bytes)?;
+  Ok(PKey::private_key_from_pem(&pem_bytes)?)
+}
+ 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use openssl::x509::store::X509StoreBuilder;
+  use openssl::x509::X509StoreContext;
+  use super::*;
 
     #[test]
     fn test_cert_validation() -> Result<(), Error>{
       match config::Settings::new() {
         Ok(settings) => {
           let (ca_pkey, ca_cert) = create_ca_certificate(&settings.pki)?;
-          let (pkey, cert) = create_ca_signed_certificate(
+          let (_, cert) = create_ca_signed_certificate(
             &settings.pki,
             &ca_pkey,
             &ca_cert,
