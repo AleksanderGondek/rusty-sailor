@@ -29,7 +29,7 @@ pub struct Settings {
 }
 
 impl Settings {
-  pub fn new(filepath: &Option<String>) -> Result<Self, ConfigError> {
+  pub fn new(filepath: &Option<&str>) -> Result<Self, ConfigError> {
     let mut cfg = Config::new();
     if let Some(filepath) = filepath {
       cfg.merge(File::with_name(filepath))?;
