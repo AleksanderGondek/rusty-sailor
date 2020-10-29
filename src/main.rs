@@ -10,12 +10,16 @@ fn main() {
     .about(crate_description!())
     .arg(
       Arg::with_name("version")
-        .long("version")  
-        .short("v")
+        .long("version")
         .takes_value(false)
-        .help("Prints current rusty-sailor version"),        
+        .help("Prints current rusty-sailor version"),
     )
     .get_matches();
+
+  if matches.is_present("version") {
+    println!(crate_version!());
+    std::process::exit(0);
+  }
 
   let settings = rusty_sailor::config::Settings::new();
 
