@@ -21,7 +21,7 @@ fn main() {
     std::process::exit(0);
   }
 
-  let settings = rusty_sailor::config::Settings::new();
+  let settings = rusty_sailor::config::Settings::new(&None);
 
   println!("Hello, world!");
   if let Ok(x) = settings {

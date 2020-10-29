@@ -29,9 +29,11 @@ pub struct Settings {
 }
 
 impl Settings {
-  pub fn new() -> Result<Self, ConfigError> {
+  pub fn new(filepath: &Option<String>) -> Result<Self, ConfigError> {
     let mut cfg = Config::new();
-    cfg.merge(File::with_name("rusty-sailor.toml"))?;
+    if let Some(filepath) = filepath {
+      cfg.merge(File::with_name(filepath))?;
+    }
     cfg.try_into()
   }
 }
