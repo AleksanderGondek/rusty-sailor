@@ -209,13 +209,14 @@ pub fn create_ca_signed_certificate(
 
 #[cfg(test)]
 mod tests {
+  use std::io::Error;
   use openssl::x509::store::X509StoreBuilder;
   use openssl::x509::X509StoreContext;
   use super::*;
 
     #[test]
     fn test_cert_validation() -> Result<(), Error>{
-      match config::Settings::new() {
+      match config::Settings::new(&None) {
         Ok(settings) => {
           let (ca_pkey, ca_cert) = create_ca_certificate(&settings.pki)?;
           let (_, cert) = create_ca_signed_certificate(
