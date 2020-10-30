@@ -1,3 +1,5 @@
+use std::io::{Error, ErrorKind};
+
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
@@ -16,10 +18,27 @@ fn main() {
     )
     .arg(
       Arg::with_name("config")
-      .long("config")
-      .short("c")
-      .takes_value(true)
-      .help("Path to configuration file which should be used"),
+        .long("config")
+        .short("c")
+        .takes_value(true)
+        .required(false)
+        .help("Path to configuration file which should be used"),
+    )
+    .arg(
+      Arg::with_name("ca_cert")
+        .long("ca-certificate")
+        .takes_value(true)
+        .required(false)
+        .requires("ca_pkey")
+        .help("Path to ca certificate that should be used"),
+    )
+    .arg(
+      Arg::with_name("ca_pkey")
+        .long("ca-private-key")
+        .takes_value(true)
+        .required(false)
+        .requires("ca_cert")
+        .help("Path to ca private key that should be used"),
     )
     .get_matches();
 
@@ -30,6 +49,19 @@ fn main() {
 
   let settings = rusty_sailor::config::Settings::new(
     &matches.value_of("config")
+  );
+
+  let ca_pkey = matches.value_of("ca_pkey").map_or(
+    Err(Error::new(ErrorKind::Other, "AAAA")),
+    |ca_pkey_path| {
+      rusty_sailor::pki::io::load_pem_private_key(ca_pkey_path)
+    }
+  );
+  let ca_cert = matches.value_of("ca_cert").map_or(
+    Err(Error::new(ErrorKind::Other, "BBB")),
+    |ca_cert_path| {
+      rusty_sailor::pki::io::load_pem_certificate(ca_cert_path)
+    }
   );
 
   match settings {
