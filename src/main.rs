@@ -5,6 +5,31 @@ use clap::{
   App, Arg
 };
 
+use rusty_sailor::installation_context::InstallationCtx;
+
+fn _load_custom_ca(
+  mut ctx: InstallationCtx,
+  custom_ca_pkey_path: &Option<&str>,
+  custom_ca_cert_path: &Option<&str>
+) -> Result<InstallationCtx, Error> {
+  let ca_pkey = custom_ca_pkey_path.map_or(
+    Err(Error::new(ErrorKind::Other, "Custom CA private key not provided!")),
+    |ca_pkey_path| {
+      rusty_sailor::pki::io::load_pem_private_key(ca_pkey_path)
+    }
+  );
+  let ca_cert = custom_ca_cert_path.map_or(
+    Err(Error::new(ErrorKind::Other, "Custom CA certificate not provided")),
+    |ca_cert_path| {
+      rusty_sailor::pki::io::load_pem_certificate(ca_cert_path)
+    }
+  );
+  // TODO: Explicitly inform that custom ca was not found
+  ctx.ca_private_key = ca_pkey.ok();
+  ctx.ca_certificate = ca_cert.ok();
+  Ok(ctx)
+}
+
 fn main() {
   let matches = App::new(crate_name!())
     .version(crate_version!())
@@ -25,20 +50,20 @@ fn main() {
         .help("Path to configuration file which should be used"),
     )
     .arg(
-      Arg::with_name("ca_cert")
-        .long("ca-certificate")
-        .takes_value(true)
-        .required(false)
-        .requires("ca_pkey")
-        .help("Path to ca certificate that should be used"),
-    )
-    .arg(
       Arg::with_name("ca_pkey")
         .long("ca-private-key")
         .takes_value(true)
         .required(false)
         .requires("ca_cert")
         .help("Path to ca private key that should be used"),
+    )
+    .arg(
+      Arg::with_name("ca_cert")
+        .long("ca-certificate")
+        .takes_value(true)
+        .required(false)
+        .requires("ca_pkey")
+        .help("Path to ca certificate that should be used"),
     )
     .get_matches();
 
@@ -47,38 +72,15 @@ fn main() {
     std::process::exit(0);
   };
 
-  let settings = rusty_sailor::config::Settings::new(
-    &matches.value_of("config")
-  );
+  let custom_ca_pkey_path = matches.value_of("ca_pkey");
+  let custom_ca_cert_path = matches.value_of("ca_cert");
 
-  let ca_pkey = matches.value_of("ca_pkey").map_or(
-    Err(Error::new(ErrorKind::Other, "AAAA")),
-    |ca_pkey_path| {
-      rusty_sailor::pki::io::load_pem_private_key(ca_pkey_path)
-    }
-  );
-  let ca_cert = matches.value_of("ca_cert").map_or(
-    Err(Error::new(ErrorKind::Other, "BBB")),
-    |ca_cert_path| {
-      rusty_sailor::pki::io::load_pem_certificate(ca_cert_path)
-    }
-  );
-
-  match settings {
-    Ok(x) => {
-      println!("Debug: {}", x.debug);
-      println!("Pki.rsa_size: {}", x.pki.rsa_size);
-      println!("Pki.country_name: {}", x.pki.country_name);
-      println!("Pki.locality: {}", x.pki.locality);
-      println!("Pki.organization: {}", x.pki.organization);
-      println!("Pki.organizational_unit: {}", x.pki.organizational_unit);
-      println!("Pki.state: {}", x.pki.state);
-      println!("Pki.ca.common_name: {}", x.pki.ca.common_name);
-      println!("Pki.ca.expiry_in_days: {}", x.pki.ca.expiry_in_days);
-    }
-    Err(y) => {
-      println!("{}", y);
-      std::process::exit(1);
-    }
-  };
+  let test = InstallationCtx::new(&matches.value_of("config"))
+    .map(|ctx| {
+      _load_custom_ca(
+        ctx, 
+        &custom_ca_pkey_path,
+        &custom_ca_cert_path
+      )
+    });
 }
