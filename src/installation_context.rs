@@ -6,8 +6,8 @@ use openssl::x509::X509;
 use crate::config::Settings;
 
 pub struct InstallationCtx {
-  pub ca_certificate: Option<X509>,
   pub ca_private_key: Option<PKey<Private>>,
+  pub ca_certificate: Option<X509>,
   pub config: Settings
 }
 
