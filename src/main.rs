@@ -3,7 +3,7 @@ use clap::{
   App, Arg
 };
 
-use rusty_sailor::installation_context::InstallationCtx;
+use rusty_sailor::install_ctx::InstallCtx;
 
 fn main() {
   let matches = App::new(crate_name!())
@@ -49,12 +49,12 @@ fn main() {
 
   let ca_pkey_path = matches.value_of("ca_pkey");
   let ca_cert_path = matches.value_of("ca_cert");
-  let create_ca_component = rusty_sailor::pki::ca::ca_component(
+  let create_ca_component = rusty_sailor::components::ca::ca_component(
     &ca_pkey_path,
     &ca_cert_path
   );
 
-  let _ = InstallationCtx::new(
+  let _ = InstallCtx::new(
     &matches.value_of("config")
   ).map(
     |ctx| create_ca_component(ctx)

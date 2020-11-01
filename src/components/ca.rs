@@ -2,13 +2,22 @@ use std::fs::create_dir_all;
 use std::io::{Error, ErrorKind};
 use std::path::Path;
 
-use crate::installation_context::InstallationCtx;
+use crate::install_ctx::InstallCtx;
+use crate::pki::cert::create_ca_certificate;
+use crate::pki::io::{
+  save_as_pem_certificate,
+  save_as_pem_private_key
+};
+
+const CA_DIRNAME: &'static str = "pki";
+const CA_PKEY_NAME: &'static str = "rusty-sailor-ca.private-key.pem";
+const CA_CERT_NAME: &'static str = "rusty-sailor-ca.pem";
 
 fn _load_custom_ca(
-  mut ctx: InstallationCtx,
+  mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallationCtx, Error> {
+) -> Result<InstallCtx, Error> {
   let ca_pkey = custom_ca_pkey_path.map_or(
     Err(Error::new(ErrorKind::Other, "Custom CA private key not provided!")),
     |ca_pkey_path| {
@@ -28,39 +37,37 @@ fn _load_custom_ca(
 }
 
 fn _ensure_ca_exists(
-  mut ctx: InstallationCtx,
-) -> Result<InstallationCtx, Error> {
+  mut ctx: InstallCtx,
+) -> Result<InstallCtx, Error> {
   if ctx.ca_private_key.is_none() || ctx.ca_certificate.is_none() {
-    let (ca_pkey, ca_cert) = crate::pki::cert::create_ca_certificate(&ctx.config.pki)?;
+    let (ca_pkey, ca_cert) = create_ca_certificate(&ctx.config.pki)?;
     ctx.ca_private_key = Some(ca_pkey);
     ctx.ca_certificate = Some(ca_cert);
   }
 
   let target_dir = Path::new(
     &ctx.config.installation_dir
-  ).join(
-    Path::new("pki")
-  );
+  ).join(CA_DIRNAME);
 
   create_dir_all(&target_dir)?;
 
   crate::pki::io::save_as_pem_private_key(
     &ctx.ca_private_key.as_ref().unwrap(),
-    &target_dir.join(Path::new("rusty-sailor-ca.private-key.pem"))
+    &target_dir.join(CA_PKEY_NAME)
   )?;
   crate::pki::io::save_as_pem_certificate(
     &ctx.ca_certificate.as_ref().unwrap(),
-    &target_dir.join(Path::new("rusty-sailor-ca.pem"))
+    &target_dir.join(CA_CERT_NAME)
   )?;
 
   Ok(ctx)
 }
 
 fn _ca_component(
-  mut ctx: InstallationCtx,
+  mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallationCtx, Error> {
+) -> Result<InstallCtx, Error> {
   _load_custom_ca(
     ctx,
     custom_ca_pkey_path,
@@ -76,6 +83,6 @@ fn _ca_component(
 pub fn ca_component<'a>(
   custom_ca_pkey_path:& 'a Option<&str>,
   custom_ca_cert_path:& 'a Option<&str>
-) -> Box<Fn(InstallationCtx) -> Result<InstallationCtx, Error> + 'a > {
-  Box::new(move |ctx:InstallationCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
+) -> Box<Fn(InstallCtx) -> Result<InstallCtx, Error> + 'a > {
+  Box::new(move |ctx:InstallCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
 }

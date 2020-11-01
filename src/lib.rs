@@ -1,3 +1,4 @@
 pub mod config;
-pub mod installation_context;
+pub mod components;
+pub mod install_ctx;
 pub mod pki;

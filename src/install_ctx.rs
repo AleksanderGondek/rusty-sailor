@@ -5,13 +5,13 @@ use openssl::x509::X509;
 
 use crate::config::Settings;
 
-pub struct InstallationCtx {
+pub struct InstallCtx {
   pub ca_private_key: Option<PKey<Private>>,
   pub ca_certificate: Option<X509>,
   pub config: Settings
 }
 
-impl InstallationCtx {
+impl InstallCtx {
   pub fn new(
     custom_cfg_path: &Option<&str>
   ) -> Result<Self, Error> {
@@ -21,7 +21,7 @@ impl InstallationCtx {
     cfg_load_result.map_or_else(
       |e| Err(Error::new(ErrorKind::Other, e.to_string())),
       |cfg| Ok(
-        InstallationCtx {
+        InstallCtx {
           ca_private_key: None,
           ca_certificate: None,
           config: cfg
