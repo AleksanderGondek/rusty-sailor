@@ -43,7 +43,7 @@ impl Default for Settings {
   fn default() -> Self {
     Settings {
       debug: true,
-      installation_dir: "/tmp/rusty-sailor",
+      installation_dir: "/tmp/rusty-sailor".to_string(),
       pki: PkiSettings {
         country_name: "PL".to_string(),
         locality: "Gdansk".to_string(),

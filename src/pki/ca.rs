@@ -1,4 +1,6 @@
+use std::fs::create_dir_all;
 use std::io::{Error, ErrorKind};
+use std::path::Path;
 
 use crate::installation_context::InstallationCtx;
 
@@ -28,9 +30,29 @@ fn _load_custom_ca(
 fn _ensure_ca_exists(
   mut ctx: InstallationCtx,
 ) -> Result<InstallationCtx, Error> {
-  if ctx.ca_private_key.is_some() && ctx.ca_certificate.is_some() {
-    return Ok(ctx)
+  if ctx.ca_private_key.is_none() || ctx.ca_certificate.is_none() {
+    let (ca_pkey, ca_cert) = crate::pki::cert::create_ca_certificate(&ctx.config.pki)?;
+    ctx.ca_private_key = Some(ca_pkey);
+    ctx.ca_certificate = Some(ca_cert);
   }
+
+  let target_dir = Path::new(
+    &ctx.config.installation_dir
+  ).join(
+    Path::new("pki")
+  );
+
+  create_dir_all(&target_dir)?;
+
+  crate::pki::io::save_as_pem_private_key(
+    &ctx.ca_private_key.as_ref().unwrap(),
+    &target_dir.join(Path::new("rusty-sailor-ca.private-key.pem"))
+  )?;
+  crate::pki::io::save_as_pem_certificate(
+    &ctx.ca_certificate.as_ref().unwrap(),
+    &target_dir.join(Path::new("rusty-sailor-ca.pem"))
+  )?;
+
   Ok(ctx)
 }
 

@@ -1,13 +1,14 @@
 use std::fs::File;
 use std::io::Error;
 use std::io::prelude::{Read, Write};
+use std::path::Path;
 
 use openssl::pkey::{PKey, Private};
 use openssl::x509::X509;
 
 pub fn save_as_pem_private_key(
   key: &PKey<Private>,
-  filename: &str
+  filename: &Path
 ) -> Result<(), Error> {
   let mut file = File::create(filename)?;
   file.write_all(&key.private_key_to_pem_pkcs8()?)?;
@@ -16,7 +17,7 @@ pub fn save_as_pem_private_key(
 
 pub fn save_as_pem_certificate(
   certificate: &X509,
-  filename: &str
+  filename: &Path
 ) -> Result<(), Error> {
   let mut file = File::create(filename)?;
   file.write_all(&certificate.to_pem()?)?;
