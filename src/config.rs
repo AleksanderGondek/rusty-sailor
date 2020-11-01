@@ -25,6 +25,7 @@ pub struct PkiSettings {
 #[serde(default)]
 pub struct Settings {
   pub debug: bool,
+  pub installation_dir: String,
   pub pki: PkiSettings
 }
 
@@ -42,6 +43,7 @@ impl Default for Settings {
   fn default() -> Self {
     Settings {
       debug: true,
+      installation_dir: "/tmp/rusty-sailor",
       pki: PkiSettings {
         country_name: "PL".to_string(),
         locality: "Gdansk".to_string(),

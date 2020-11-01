@@ -1,4 +1,5 @@
 debug = true
+installation_dir = "/tmp/rusty-sailor"
 
 [pki]
 country_name = "PL"
