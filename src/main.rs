@@ -1,4 +1,5 @@
-use log::{debug, error, info, trace, warn};
+// TODO: Error -> std::error::Error
+use std::io::Error;
 
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
@@ -7,6 +8,14 @@ use clap::{
 
 use rusty_sailor::install_ctx::InstallCtx;
 use rusty_sailor::logging::init_logger;
+
+fn init(
+  custom_cfg_path: &Option<&str>
+) -> Result<InstallCtx, Error> {
+  let ctx = InstallCtx::new(custom_cfg_path)?;
+  init_logger(&ctx.config)?;
+  Ok(ctx)
+}
 
 fn main() {
   let matches = App::new(crate_name!())
@@ -57,9 +66,9 @@ fn main() {
     &ca_cert_path
   );
 
-  let _ = InstallCtx::new(
-    &matches.value_of("config")
-  ).map(
-    |ctx| create_ca_component(ctx)
-  );
+  let custom_config_path = matches.value_of("config");
+  let _ = init(&custom_config_path)
+    .map(
+      |ctx| create_ca_component(ctx)
+    );
 }
