@@ -209,13 +209,13 @@ pub fn create_ca_signed_certificate(
 
 #[cfg(test)]
 mod tests {
-  use std::io::Error;
   use openssl::x509::store::X509StoreBuilder;
   use openssl::x509::X509StoreContext;
+  use crate::errors::BaseError;
   use super::*;
 
     #[test]
-    fn test_cert_validation() -> Result<(), Error>{
+    fn test_cert_validation() -> Result<(), BaseError>{
       match config::Settings::new(&None) {
         Ok(settings) => {
           let (ca_pkey, ca_cert) = create_ca_certificate(&settings.pki)?;
@@ -239,7 +239,7 @@ mod tests {
           Ok(())
         },
         _ => {
-          Err(Error::new(std::io::ErrorKind::Other, "Failed to create config"))
+          Err(BaseError {msg: "Failed to create config".to_string()})
         }
       }
     }

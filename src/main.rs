@@ -1,17 +1,15 @@
-// TODO: Error -> std::error::Error
-use std::io::Error;
-
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
 };
 
+use rusty_sailor::errors::BaseError;
 use rusty_sailor::install_ctx::InstallCtx;
 use rusty_sailor::logging::init_logger;
 
 fn init(
   custom_cfg_path: &Option<&str>
-) -> Result<InstallCtx, Error> {
+) -> Result<InstallCtx, BaseError> {
   let ctx = InstallCtx::new(custom_cfg_path)?;
   init_logger(&ctx.config)?;
   Ok(ctx)

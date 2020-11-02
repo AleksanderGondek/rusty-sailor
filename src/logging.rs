@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::io::{Error, ErrorKind};
 
 use simplelog::{
   CombinedLogger,
@@ -10,8 +9,9 @@ use simplelog::{
 };
 
 use crate::config::Settings;
+use crate::errors::BaseError;
 
-pub fn init_logger(cfg: &Settings) -> Result<(), Error> {
+pub fn init_logger(cfg: &Settings) -> Result<(), BaseError> {
   let log_level = match cfg.debug {
     true => LevelFilter::Trace,
     false => LevelFilter::Info
@@ -38,13 +38,11 @@ pub fn init_logger(cfg: &Settings) -> Result<(), Error> {
     logger_file
   );
 
-  CombinedLogger::init(
+  let _ = CombinedLogger::init(
     vec![
       terminal_logger,
       file_logger
     ]
-  ).map_or_else(
-    |e| Err(Error::new(ErrorKind::Other, e.to_string())),
-    |_| Ok(())
-  )
+  )?;
+  Ok(())
 }

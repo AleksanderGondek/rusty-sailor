@@ -1,7 +1,7 @@
 use std::fs::create_dir_all;
-use std::io::{Error, ErrorKind};
 use std::path::Path;
 
+use crate::errors::BaseError;
 use crate::install_ctx::InstallCtx;
 use crate::pki::cert::create_ca_certificate;
 use crate::pki::io::{
@@ -17,15 +17,15 @@ fn _load_custom_ca(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, Error> {
+) -> Result<InstallCtx, BaseError> {
   let ca_pkey = custom_ca_pkey_path.map_or(
-    Err(Error::new(ErrorKind::Other, "Custom CA private key not provided!")),
+    Err(BaseError {msg: "Custom CA private key not provided!".to_string()}),
     |ca_pkey_path| {
       crate::pki::io::load_pem_private_key(ca_pkey_path)
     }
   );
   let ca_cert = custom_ca_cert_path.map_or(
-    Err(Error::new(ErrorKind::Other, "Custom CA certificate not provided")),
+    Err(BaseError {msg: "Custom CA certificate not provided".to_string()}),
     |ca_cert_path| {
       crate::pki::io::load_pem_certificate(ca_cert_path)
     }
@@ -38,7 +38,7 @@ fn _load_custom_ca(
 
 fn _ensure_ca_exists(
   mut ctx: InstallCtx,
-) -> Result<InstallCtx, Error> {
+) -> Result<InstallCtx, BaseError> {
   if ctx.ca_private_key.is_none() || ctx.ca_certificate.is_none() {
     let (ca_pkey, ca_cert) = create_ca_certificate(&ctx.config.pki)?;
     ctx.ca_private_key = Some(ca_pkey);
@@ -51,11 +51,11 @@ fn _ensure_ca_exists(
 
   create_dir_all(&target_dir)?;
 
-  crate::pki::io::save_as_pem_private_key(
+  save_as_pem_private_key(
     &ctx.ca_private_key.as_ref().unwrap(),
     &target_dir.join(CA_PKEY_NAME)
   )?;
-  crate::pki::io::save_as_pem_certificate(
+  save_as_pem_certificate(
     &ctx.ca_certificate.as_ref().unwrap(),
     &target_dir.join(CA_CERT_NAME)
   )?;
@@ -67,13 +67,13 @@ fn _ca_component(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, Error> {
+) -> Result<InstallCtx, BaseError> {
   _load_custom_ca(
     ctx,
     custom_ca_pkey_path,
     custom_ca_cert_path
   ).map_or_else(
-    |e| Err(Error::new(ErrorKind::Other, e.to_string())),
+    |e| Err(e),
     |context| _ensure_ca_exists(context)
   )
 }
@@ -83,6 +83,6 @@ fn _ca_component(
 pub fn ca_component<'a>(
   custom_ca_pkey_path:& 'a Option<&str>,
   custom_ca_cert_path:& 'a Option<&str>
-) -> Box<Fn(InstallCtx) -> Result<InstallCtx, Error> + 'a > {
+) -> Box<Fn(InstallCtx) -> Result<InstallCtx, BaseError> + 'a > {
   Box::new(move |ctx:InstallCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
 }
