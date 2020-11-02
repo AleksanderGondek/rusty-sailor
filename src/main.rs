@@ -1,9 +1,12 @@
+use log::{debug, error, info, trace, warn};
+
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
 };
 
 use rusty_sailor::install_ctx::InstallCtx;
+use rusty_sailor::logging::init_logger;
 
 fn main() {
   let matches = App::new(crate_name!())

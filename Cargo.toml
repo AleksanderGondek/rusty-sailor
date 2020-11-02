@@ -10,5 +10,7 @@ edition = "2018"
 [dependencies]
 clap = { version = "2.33.3", features = [] }
 config = { version = "0.10.1", features = ["toml"] }
+log = { version = "0.4.11" }
 openssl = { version = "0.10.30" }
 serde = { version = "1.0.116", features = ["derive"] }
+simplelog = { version = "0.8.0", features = [] }

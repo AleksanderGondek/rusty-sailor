@@ -11,3 +11,6 @@ Cargo.lock
 
 # Rustup
 .rustup
+
+# rusty-sailor log
+rusty-sailor.log

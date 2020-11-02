@@ -42,7 +42,7 @@ impl Settings {
 impl Default for Settings {
   fn default() -> Self {
     Settings {
-      debug: true,
+      debug: false,
       installation_dir: "/tmp/rusty-sailor".to_string(),
       pki: PkiSettings {
         country_name: "PL".to_string(),
