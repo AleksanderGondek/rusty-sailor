@@ -239,7 +239,11 @@ mod tests {
           Ok(())
         },
         _ => {
-          Err(BaseError {msg: "Failed to create config".to_string()})
+          Err(
+            BaseError::new_from_str(
+              crate::errors::ErrorKind::Other, "Failed to create config"
+            )
+          )
         }
       }
     }

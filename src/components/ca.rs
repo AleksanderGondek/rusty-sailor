@@ -19,13 +19,13 @@ fn _load_custom_ca(
   custom_ca_cert_path: &Option<&str>
 ) -> Result<InstallCtx, BaseError> {
   let ca_pkey = custom_ca_pkey_path.map_or(
-    Err(BaseError {msg: "Custom CA private key not provided!".to_string()}),
+    Err(BaseError::custom_ca_not_set()),
     |ca_pkey_path| {
       crate::pki::io::load_pem_private_key(ca_pkey_path)
     }
   );
   let ca_cert = custom_ca_cert_path.map_or(
-    Err(BaseError {msg: "Custom CA certificate not provided".to_string()}),
+    Err(BaseError::custom_ca_not_set()),
     |ca_cert_path| {
       crate::pki::io::load_pem_certificate(ca_cert_path)
     }
