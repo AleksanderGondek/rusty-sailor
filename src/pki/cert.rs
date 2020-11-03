@@ -211,11 +211,11 @@ pub fn create_ca_signed_certificate(
 mod tests {
   use openssl::x509::store::X509StoreBuilder;
   use openssl::x509::X509StoreContext;
-  use crate::errors::BaseError;
+  use crate::errors::InstallError;
   use super::*;
 
     #[test]
-    fn test_cert_validation() -> Result<(), BaseError>{
+    fn test_cert_validation() -> Result<(), InstallError>{
       match config::Settings::new(&None) {
         Ok(settings) => {
           let (ca_pkey, ca_cert) = create_ca_certificate(&settings.pki)?;
@@ -240,7 +240,7 @@ mod tests {
         },
         _ => {
           Err(
-            BaseError::new_from_str(
+            InstallError::new_from_str(
               crate::errors::ErrorKind::Other, "Failed to create config"
             )
           )

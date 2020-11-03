@@ -1,7 +1,7 @@
 use std::fs::create_dir_all;
 use std::path::Path;
 
-use crate::errors::BaseError;
+use crate::errors::InstallError;
 use crate::install_ctx::InstallCtx;
 use crate::pki::cert::create_ca_certificate;
 use crate::pki::io::{
@@ -17,15 +17,15 @@ fn _load_custom_ca(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, BaseError> {
+) -> Result<InstallCtx, InstallError> {
   let ca_pkey = custom_ca_pkey_path.map_or(
-    Err(BaseError::custom_ca_not_set()),
+    Err(InstallError::custom_ca_not_set()),
     |ca_pkey_path| {
       crate::pki::io::load_pem_private_key(ca_pkey_path)
     }
   );
   let ca_cert = custom_ca_cert_path.map_or(
-    Err(BaseError::custom_ca_not_set()),
+    Err(InstallError::custom_ca_not_set()),
     |ca_cert_path| {
       crate::pki::io::load_pem_certificate(ca_cert_path)
     }
@@ -38,7 +38,7 @@ fn _load_custom_ca(
 
 fn _ensure_ca_exists(
   mut ctx: InstallCtx,
-) -> Result<InstallCtx, BaseError> {
+) -> Result<InstallCtx, InstallError> {
   if ctx.ca_private_key.is_none() || ctx.ca_certificate.is_none() {
     let (ca_pkey, ca_cert) = create_ca_certificate(&ctx.config.pki)?;
     ctx.ca_private_key = Some(ca_pkey);
@@ -67,7 +67,7 @@ fn _ca_component(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, BaseError> {
+) -> Result<InstallCtx, InstallError> {
   _load_custom_ca(
     ctx,
     custom_ca_pkey_path,
@@ -83,6 +83,6 @@ fn _ca_component(
 pub fn ca_component<'a>(
   custom_ca_pkey_path:& 'a Option<&str>,
   custom_ca_cert_path:& 'a Option<&str>
-) -> Box<Fn(InstallCtx) -> Result<InstallCtx, BaseError> + 'a > {
+) -> Box<Fn(InstallCtx) -> Result<InstallCtx, InstallError> + 'a > {
   Box::new(move |ctx:InstallCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
 }

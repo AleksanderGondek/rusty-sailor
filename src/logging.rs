@@ -9,9 +9,9 @@ use simplelog::{
 };
 
 use crate::config::Settings;
-use crate::errors::BaseError;
+use crate::errors::InstallError;
 
-pub fn init_logger(cfg: &Settings) -> Result<(), BaseError> {
+pub fn init_logger(cfg: &Settings) -> Result<(), InstallError> {
   let log_level = match cfg.debug {
     true => LevelFilter::Trace,
     false => LevelFilter::Info

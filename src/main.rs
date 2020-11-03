@@ -3,13 +3,13 @@ use clap::{
   App, Arg
 };
 
-use rusty_sailor::errors::BaseError;
+use rusty_sailor::errors::InstallError;
 use rusty_sailor::install_ctx::InstallCtx;
 use rusty_sailor::logging::init_logger;
 
 fn init(
   custom_cfg_path: &Option<&str>
-) -> Result<InstallCtx, BaseError> {
+) -> Result<InstallCtx, InstallError> {
   let ctx = InstallCtx::new(custom_cfg_path)?;
   init_logger(&ctx.config)?;
   Ok(ctx)

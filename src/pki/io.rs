@@ -5,12 +5,12 @@ use std::path::Path;
 use openssl::pkey::{PKey, Private};
 use openssl::x509::X509;
 
-use crate::errors::BaseError;
+use crate::errors::InstallError;
 
 pub fn save_as_pem_private_key(
   key: &PKey<Private>,
   filename: &Path
-) -> Result<(), BaseError> {
+) -> Result<(), InstallError> {
   let mut file = File::create(filename)?;
   file.write_all(&key.private_key_to_pem_pkcs8()?)?;
   Ok(())
@@ -19,7 +19,7 @@ pub fn save_as_pem_private_key(
 pub fn save_as_pem_certificate(
   certificate: &X509,
   filename: &Path
-) -> Result<(), BaseError> {
+) -> Result<(), InstallError> {
   let mut file = File::create(filename)?;
   file.write_all(&certificate.to_pem()?)?;
   Ok(())
@@ -27,7 +27,7 @@ pub fn save_as_pem_certificate(
 
 pub fn load_pem_certificate(
   filepath: &str
-) -> Result<X509, BaseError> {
+) -> Result<X509, InstallError> {
   let mut file = File::open(filepath)?;
   let mut pem_bytes = Vec::new();
   
@@ -37,7 +37,7 @@ pub fn load_pem_certificate(
 
 pub fn load_pem_private_key(
   filepath: &str
-) -> Result<PKey<Private>, BaseError> {
+) -> Result<PKey<Private>, InstallError> {
   let mut file = File::open(filepath)?;
   let mut pem_bytes = Vec::new();
   

@@ -12,17 +12,17 @@ pub enum ErrorKind {
 }
 
 #[derive(Debug, Clone)]
-pub struct BaseError {
+pub struct InstallError {
   pub kind: ErrorKind,
   pub msg: String
 }
 
-impl BaseError {
+impl InstallError {
   pub fn new(
     kind: ErrorKind,
     msg: String
   ) -> Self {
-    BaseError {
+    Self {
       kind,
       msg
     }
@@ -32,7 +32,7 @@ impl BaseError {
     kind: ErrorKind,
     msg: &str
   ) -> Self {
-    BaseError {
+    Self {
       kind,
       msg: msg.to_string()
     }
@@ -46,32 +46,32 @@ impl BaseError {
   }
 }
 
-impl fmt::Display for BaseError {
+impl fmt::Display for InstallError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f,"{}",self.msg)
   }
 }
 
-impl From<openssl::error::ErrorStack> for BaseError {
+impl From<openssl::error::ErrorStack> for InstallError {
   fn from(error: openssl::error::ErrorStack) -> Self {
-    BaseError::new(ErrorKind::OpenSSL, error.to_string())
+    InstallError::new(ErrorKind::OpenSSL, error.to_string())
   }
 }
 
-impl From<std::io::Error> for BaseError {
+impl From<std::io::Error> for InstallError {
   fn from(error: std::io::Error) -> Self {
-    BaseError::new(ErrorKind::FileIo, error.to_string())
+    InstallError::new(ErrorKind::FileIo, error.to_string())
   }
 }
 
-impl From<config::ConfigError> for BaseError {
+impl From<config::ConfigError> for InstallError {
   fn from(error: config::ConfigError) -> Self {
-    BaseError::new(ErrorKind::Config, error.to_string())
+    InstallError::new(ErrorKind::Config, error.to_string())
   }
 }
 
-impl From<log::SetLoggerError> for BaseError {
+impl From<log::SetLoggerError> for InstallError {
   fn from(error: log::SetLoggerError) -> Self {
-    BaseError::new(ErrorKind::Logger, error.to_string())
+    InstallError::new(ErrorKind::Logger, error.to_string())
   }
 }
