@@ -15,6 +15,21 @@ fn init(
   Ok(ctx)
 }
 
+// For some weird reason, having this function
+// written as anonymous one, will make 
+// compiler really unhappy.
+// TODO: Place somewhere else
+// TODO: Post issue
+fn _bind(
+  acc: Result<InstallCtx, InstallError>,
+  f: &Fn(InstallCtx) -> Result<InstallCtx, InstallError>
+) -> Result<InstallCtx, InstallError> {
+  match acc {
+    Ok(a) => f(a),
+    Err(e) => Err(e)
+  }
+}
+
 fn main() {
   let matches = App::new(crate_name!())
     .version(crate_version!())
@@ -64,9 +79,15 @@ fn main() {
     &ca_cert_path
   );
 
+  let install_components: Vec<&Fn(InstallCtx) -> Result<InstallCtx, InstallError>> = vec![
+    &create_ca_component
+  ];
+
   let custom_config_path = matches.value_of("config");
-  let _ = init(&custom_config_path)
-    .map(
-      |ctx| create_ca_component(ctx)
-    );
+  
+  let install_ctx: Result<InstallCtx, InstallError> = init(&custom_config_path);
+  let _ = install_components.into_iter().fold(
+    install_ctx,
+    _bind
+  );
 }
