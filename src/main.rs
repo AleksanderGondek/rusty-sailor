@@ -3,13 +3,13 @@ use clap::{
   App, Arg
 };
 
-use rusty_sailor::errors::InstallError;
 use rusty_sailor::install_ctx::InstallCtx;
 use rusty_sailor::logging::init_logger;
+use rusty_sailor::prelude::InstallStepResult;
 
 fn init(
   custom_cfg_path: &Option<&str>
-) -> Result<InstallCtx, InstallError> {
+) -> InstallStepResult {
   let ctx = InstallCtx::new(custom_cfg_path)?;
   init_logger(&ctx.config)?;
   Ok(ctx)
@@ -21,9 +21,9 @@ fn init(
 // TODO: Place somewhere else
 // TODO: Post issue
 fn _bind(
-  acc: Result<InstallCtx, InstallError>,
-  f: &Fn(InstallCtx) -> Result<InstallCtx, InstallError>
-) -> Result<InstallCtx, InstallError> {
+  acc: InstallStepResult,
+  f: &Fn(InstallCtx) -> InstallStepResult
+) -> InstallStepResult {
   match acc {
     Ok(a) => f(a),
     Err(e) => Err(e)
@@ -79,13 +79,13 @@ fn main() {
     &ca_cert_path
   );
 
-  let install_components: Vec<&Fn(InstallCtx) -> Result<InstallCtx, InstallError>> = vec![
+  let install_components: Vec<&Fn(InstallCtx) -> InstallStepResult> = vec![
     &create_ca_component
   ];
 
   let custom_config_path = matches.value_of("config");
   
-  let install_ctx: Result<InstallCtx, InstallError> = init(&custom_config_path);
+  let install_ctx: InstallStepResult = init(&custom_config_path);
   let _ = install_components.into_iter().fold(
     install_ctx,
     _bind

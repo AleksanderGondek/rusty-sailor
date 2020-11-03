@@ -8,6 +8,7 @@ use crate::pki::io::{
   save_as_pem_certificate,
   save_as_pem_private_key
 };
+use crate::prelude::InstallStepResult;
 
 const CA_DIRNAME: &'static str = "pki";
 const CA_PKEY_NAME: &'static str = "rusty-sailor-ca.private-key.pem";
@@ -17,7 +18,7 @@ fn _load_custom_ca(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, InstallError> {
+) -> InstallStepResult {
   let ca_pkey = custom_ca_pkey_path.map_or(
     Err(InstallError::custom_ca_not_set()),
     |ca_pkey_path| {
@@ -38,7 +39,7 @@ fn _load_custom_ca(
 
 fn _ensure_ca_exists(
   mut ctx: InstallCtx,
-) -> Result<InstallCtx, InstallError> {
+) -> InstallStepResult {
   if ctx.ca_private_key.is_none() || ctx.ca_certificate.is_none() {
     let (ca_pkey, ca_cert) = create_ca_certificate(&ctx.config.pki)?;
     ctx.ca_private_key = Some(ca_pkey);
@@ -67,7 +68,7 @@ fn _ca_component(
   mut ctx: InstallCtx,
   custom_ca_pkey_path: &Option<&str>,
   custom_ca_cert_path: &Option<&str>
-) -> Result<InstallCtx, InstallError> {
+) -> InstallStepResult {
   _load_custom_ca(
     ctx,
     custom_ca_pkey_path,
@@ -83,6 +84,6 @@ fn _ca_component(
 pub fn ca_component<'a>(
   custom_ca_pkey_path:& 'a Option<&str>,
   custom_ca_cert_path:& 'a Option<&str>
-) -> Box<Fn(InstallCtx) -> Result<InstallCtx, InstallError> + 'a > {
+) -> Box<dyn Fn(InstallCtx) -> InstallStepResult + 'a > {
   Box::new(move |ctx:InstallCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
 }
