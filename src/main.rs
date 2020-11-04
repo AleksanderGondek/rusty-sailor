@@ -1,3 +1,4 @@
+use log::{error, info};
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
@@ -86,8 +87,16 @@ fn main() {
   let custom_config_path = matches.value_of("config");
   
   let install_ctx: InstallStepResult = init(&custom_config_path);
-  let _ = install_components.into_iter().fold(
+  match install_components.into_iter().fold(
     install_ctx,
     _bind
-  );
+  ) {
+    Ok(_) => {
+      info!("Installation has been successfully completed!");
+    }
+    Err(error) => {
+      error!("Installation has failed!");
+      error!("Error details: '{}'", error.to_string());
+    }
+  }
 }
