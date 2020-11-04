@@ -1,5 +1,5 @@
 [package]
-name = "rusty-sailor"
+name = "rusty_sailor"
 version = "0.0.1"
 authors = ["Aleksander Gondek"]
 description = "Single-binary k8s installer for bare metal (one-node, multi-node)"
