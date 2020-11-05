@@ -1,6 +1,7 @@
 use std::fs::create_dir_all;
 use std::path::Path;
 
+use crate::components::InstallStepResult;
 use crate::errors::InstallError;
 use crate::install_ctx::InstallCtx;
 use crate::pki::cert::create_ca_certificate;
@@ -8,7 +9,6 @@ use crate::pki::io::{
   save_as_pem_certificate,
   save_as_pem_private_key
 };
-use crate::prelude::InstallStepResult;
 
 const CA_DIRNAME: &'static str = "pki";
 const CA_PKEY_NAME: &'static str = "rusty-sailor-ca.private-key.pem";

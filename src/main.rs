@@ -1,12 +1,11 @@
-use log::{error, info};
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
 };
 
+use rusty_sailor::components::{InstallStepResult, run_steps};
 use rusty_sailor::install_ctx::InstallCtx;
 use rusty_sailor::logging::init_logger;
-use rusty_sailor::prelude::InstallStepResult;
 
 fn init(
   custom_cfg_path: &Option<&str>
@@ -14,21 +13,6 @@ fn init(
   let ctx = InstallCtx::new(custom_cfg_path)?;
   init_logger(&ctx.config)?;
   Ok(ctx)
-}
-
-// For some weird reason, having this function
-// written as anonymous one, will make 
-// compiler really unhappy.
-// TODO: Place somewhere else
-// TODO: Post issue
-fn _bind(
-  acc: InstallStepResult,
-  f: &Fn(InstallCtx) -> InstallStepResult
-) -> InstallStepResult {
-  match acc {
-    Ok(a) => f(a),
-    Err(e) => Err(e)
-  }
 }
 
 fn main() {
@@ -87,16 +71,8 @@ fn main() {
   let custom_config_path = matches.value_of("config");
   
   let install_ctx: InstallStepResult = init(&custom_config_path);
-  match install_components.into_iter().fold(
+  run_steps(
     install_ctx,
-    _bind
-  ) {
-    Ok(_) => {
-      info!("Installation has been successfully completed!");
-    }
-    Err(error) => {
-      error!("Installation has failed!");
-      error!("Error details: '{}'", error.to_string());
-    }
-  }
+    install_components
+  );
 }
