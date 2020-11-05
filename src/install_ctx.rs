@@ -1,8 +1,10 @@
 use openssl::pkey::{PKey, Private};
 use openssl::x509::X509;
 
+use crate::components::InstallStepResult;
 use crate::config::Settings;
 use crate::errors::InstallError;
+use crate::logging::init_logger;
 
 pub struct InstallCtx {
   pub ca_private_key: Option<PKey<Private>>,
@@ -22,5 +24,13 @@ impl InstallCtx {
         config: cfg
       }
     )
+  }
+
+  pub fn new_with_init(
+    custom_cfg_path: &Option<&str>
+  ) -> InstallStepResult {
+    let ctx = InstallCtx::new(custom_cfg_path)?;
+    init_logger(&ctx.config)?;
+    Ok(ctx)
   }
 }

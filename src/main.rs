@@ -5,15 +5,6 @@ use clap::{
 
 use rusty_sailor::components::{InstallStepResult, run_steps};
 use rusty_sailor::install_ctx::InstallCtx;
-use rusty_sailor::logging::init_logger;
-
-fn init(
-  custom_cfg_path: &Option<&str>
-) -> InstallStepResult {
-  let ctx = InstallCtx::new(custom_cfg_path)?;
-  init_logger(&ctx.config)?;
-  Ok(ctx)
-}
 
 fn main() {
   let matches = App::new(crate_name!())
@@ -70,7 +61,7 @@ fn main() {
 
   let custom_config_path = matches.value_of("config");
   
-  let install_ctx: InstallStepResult = init(&custom_config_path);
+  let install_ctx: InstallStepResult = InstallCtx::new_with_init(&custom_config_path);
   run_steps(
     install_ctx,
     install_components
