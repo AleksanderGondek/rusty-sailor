@@ -61,9 +61,11 @@ fn main() {
 
   let custom_config_path = matches.value_of("config");
   
-  let install_ctx: InstallStepResult = InstallCtx::new_with_init(&custom_config_path);
-  run_steps(
-    install_ctx,
+  match run_steps(
+    InstallCtx::new_with_init(&custom_config_path),
     install_components
-  );
+  ) {
+    Ok(_) => std::process::exit(0),
+    Err(_) => std::process::exit(1)
+  };
 }
