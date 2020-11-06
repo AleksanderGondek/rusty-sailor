@@ -81,7 +81,7 @@ fn _ca_component(
 
 // http://blog.madhukaraphatak.com/functional-programming-in-rust-part-1/
 // Returns function
-pub fn ca_component<'a>(
+pub fn create_ca_component<'a>(
   custom_ca_pkey_path:& 'a Option<&str>,
   custom_ca_cert_path:& 'a Option<&str>
 ) -> Box<dyn Fn(InstallCtx) -> InstallStepResult + 'a > {

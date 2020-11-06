@@ -4,6 +4,7 @@ use clap::{
 };
 
 use rusty_sailor::components::{InstallStepResult, run_steps};
+use rusty_sailor::components::etcd::etcd_component;
 use rusty_sailor::install_ctx::InstallCtx;
 
 fn main() {
@@ -52,14 +53,14 @@ fn main() {
   let ca_cert_path = matches.value_of("ca_cert");
   let custom_config_path = matches.value_of("config");
 
-  let create_ca_component = rusty_sailor::components::ca::ca_component(
+  let ca_component = rusty_sailor::components::ca::create_ca_component(
     &ca_pkey_path,
     &ca_cert_path
   );
 
   let install_components: Vec<&Fn(InstallCtx) -> InstallStepResult> = vec![
-    &create_ca_component,
-    &rusty_sailor::components::etcd::etcd_component,
+    &ca_component,
+    &etcd_component,
   ];
   
   match run_steps(
