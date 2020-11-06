@@ -50,16 +50,17 @@ fn main() {
 
   let ca_pkey_path = matches.value_of("ca_pkey");
   let ca_cert_path = matches.value_of("ca_cert");
+  let custom_config_path = matches.value_of("config");
+
   let create_ca_component = rusty_sailor::components::ca::ca_component(
     &ca_pkey_path,
     &ca_cert_path
   );
 
   let install_components: Vec<&Fn(InstallCtx) -> InstallStepResult> = vec![
-    &create_ca_component
+    &create_ca_component,
+    &rusty_sailor::components::etcd::etcd_component,
   ];
-
-  let custom_config_path = matches.value_of("config");
   
   match run_steps(
     InstallCtx::new_with_init(&custom_config_path),

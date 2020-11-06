@@ -4,6 +4,7 @@ use crate::errors::InstallError;
 use crate::install_ctx::InstallCtx;
 
 pub mod ca;
+pub mod etcd;
 
 pub type InstallStepResult = Result<InstallCtx, InstallError>;
 
