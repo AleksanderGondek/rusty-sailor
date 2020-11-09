@@ -14,3 +14,6 @@ Cargo.lock
 
 # rusty-sailor log
 rusty-sailor.log
+
+# Vendor archives
+vendored/
