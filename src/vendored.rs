@@ -16,9 +16,9 @@ pub fn unpack_archive(
   destination: &str
 ) -> Result<(), InstallError> {
   let archive = Archives::get(name).ok_or_else(||
-    InstallError::new_from_str(
+    InstallError::new(
       ErrorKind::UnpackArchive,
-      ""
+      format!("Archive with name '{}' was not found", name)
     )
   )?;
   match archive {
@@ -28,11 +28,11 @@ pub fn unpack_archive(
       ).unpack(destination)?;
       Ok(result)
     }
-    Cow::Owned(_new_string) => {
+    Cow::Owned(_) => {
       Err(
-        InstallError::new_from_str(
+        InstallError::new(
           ErrorKind::UnpackArchive,
-          ""
+          format!("Could not properly read contents of archive '{}'", name)
         )
       )
     }
