@@ -17,3 +17,6 @@ rusty-sailor.log
 
 # Vendor archives
 vendored/
+
+# Nix
+result
