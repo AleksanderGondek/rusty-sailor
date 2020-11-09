@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::convert::From;
 use std::io::Cursor;
 
+use flate2::read::GzDecoder;
 use rust_embed::RustEmbed;
 use tar::Archive;
 
@@ -15,17 +16,23 @@ pub fn unpack_archive(
   name: &str,
   destination: &str
 ) -> Result<(), InstallError> {
-  let archive = Archives::get(name).ok_or_else(||
+  let package_bytes = Archives::get(name).ok_or_else(||
     InstallError::new(
       ErrorKind::UnpackArchive,
       format!("Archive with name '{}' was not found", name)
     )
   )?;
-  match archive {
-    Cow::Borrowed(byte_contents) => {
-      let result = Archive::new(
-        Cursor::new(byte_contents)
-      ).unpack(destination)?;
+  match package_bytes {
+    Cow::Borrowed(bytes) => {
+      let tar = GzDecoder::new(
+        Cursor::new(bytes)
+      );
+      let mut archive = Archive::new(
+        tar
+      );
+      let result = archive.unpack(
+        destination
+      )?;
       Ok(result)
     }
     Cow::Owned(_) => {

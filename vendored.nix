@@ -16,6 +16,6 @@ pkgs.stdenv.mkDerivation({
   phases = [ "installPhase" ];
   installPhase = ''
     mkdir -p $out
-    cp ${etcd_pkg} $out/${etcd_pkg.name}
+    cp ${etcd_pkg} "$out/${etcd_pkg.name}.tar.gz"
   '';
 })
