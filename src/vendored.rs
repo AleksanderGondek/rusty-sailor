@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::convert::From;
 use std::io::Cursor;
+use std::path::Path;
 
 use flate2::read::GzDecoder;
 use rust_embed::RustEmbed;
@@ -12,9 +13,9 @@ use crate::errors::{ErrorKind, InstallError};
 #[folder = "vendored"]
 struct Archives;
 
-pub fn unpack_archive(
+pub fn unpack_archive<P: AsRef<Path>>(
   name: &str,
-  destination: &str
+  destination: &P
 ) -> Result<(), InstallError> {
   let package_bytes = Archives::get(name).ok_or_else(||
     InstallError::new(
