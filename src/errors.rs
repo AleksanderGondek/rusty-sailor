@@ -8,6 +8,7 @@ pub enum ErrorKind {
   FileIo,
   Logger,
   OpenSSL,
+  TemplateRender,
   UnpackArchive,
   Other
 }
@@ -74,5 +75,11 @@ impl From<config::ConfigError> for InstallError {
 impl From<log::SetLoggerError> for InstallError {
   fn from(error: log::SetLoggerError) -> Self {
     InstallError::new(ErrorKind::Logger, error.to_string())
+  }
+}
+
+impl From<askama::shared::Error> for InstallError {
+  fn from(error: askama::shared::Error) -> Self {
+    InstallError::new(ErrorKind::TemplateRender, error.to_string())
   }
 }
