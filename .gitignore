@@ -20,3 +20,6 @@ vendored/
 
 # Nix
 result
+
+# Vagrant
+.vagrant

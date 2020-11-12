@@ -13,8 +13,13 @@ pkgs.mkShell {
     bash
     busybox
     cacert
+    curlFull
+    libvirt
+    openssh
     openssl
+    rsync
     rustup
+    vagrant
   ];
 
   shellHook = ''
