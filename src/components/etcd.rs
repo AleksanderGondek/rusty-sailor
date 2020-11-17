@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::ffi::OsString;
 use std::fs::create_dir_all;
 use std::path::Path;
+use std::process::Command;
 
 use askama::Template;
 
@@ -68,6 +69,23 @@ fn _create_systemd_service_file(
   )
 }
 
+fn _enable_systemd_service(
+) -> Result<(), InstallError> {
+  Command::new("sh")
+    .arg("-c")
+    .arg("systemctl reload")
+    .output()?;
+  Command::new("sh")
+    .arg("-c")
+    .arg("systemctl enable etcd.service")
+    .output()?;
+  Command::new("sh")
+    .arg("-c")
+    .arg("systemctl start etcd.service")
+    .output()?;
+  Ok(())
+}
+
 pub fn etcd_component(
   mut install_ctx: InstallCtx
 ) -> InstallStepResult {
@@ -81,6 +99,7 @@ pub fn etcd_component(
   flatten(&target_dir, Some(&etcd_artifacts))?;
 
   _create_systemd_service_file(&target_dir)?;
+  _enable_systemd_service()?;
 
   Ok(install_ctx)
 }
