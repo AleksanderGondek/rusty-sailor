@@ -13,12 +13,16 @@ pkgs.mkShell {
     bash
     busybox
     cacert
+    rustup
+    # crate openssl-endored deps
+    gcc
+    gnumake
+    perl
+    # VM-based testing
     curlFull
     libvirt
     openssh
-    openssl
     rsync
-    rustup
     vagrant
   ];
 
@@ -33,8 +37,6 @@ pkgs.mkShell {
     # Ensuring OPENSSL behaves
     export LD_LIBRARY_PATH=''$(rustc --print sysroot)/lib
     export RUST_BACKTRACE=full
-    export OPENSSL_LIB_DIR="${pkgs.openssl.out}/lib";
-    export OPENSSL_INCLUDE_DIR="${pkgs.openssl.dev}/include";
 
     # Ensuring Vendored Packages exist
     if [ ! -d "vendored" ]; then
