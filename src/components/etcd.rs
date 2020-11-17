@@ -16,6 +16,7 @@ const ETCD_DIRNAME: &'static str = "etcd";
 const ETCD_ARCHIVE_NAME: &'static str = "etcd.tar.gz";
 const ETCD_BINARY_NAME: &'static str = "etcd";
 const ETCD_ENV_FILE_NAME: &'static str = "etcd.env";
+const ETCD_SYSTEMD_DEF_PATH: &'static str = "/etc/systemd/system/etcd.service";
 
 #[derive(Template)]
 #[template(path = "etcd/etcd.service", escape = "none")]
@@ -45,15 +46,15 @@ fn _create_systemd_service_file(
   );
 
   let path_to_env_file = path_to_env_file.to_str().map_or_else(
-    || Err(InstallError::new_from_str(ErrorKind::Other, "??")),
+    || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd.env file")),
     |x| Ok(x)
   )?;
   let path_to_binary = path_to_binary.to_str().map_or_else(
-    || Err(InstallError::new_from_str(ErrorKind::Other, "??")),
+    || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd binary file")),
     |x| Ok(x)
   )?;
   let install_dir = target_dir.to_str().map_or_else(
-    || Err(InstallError::new_from_str(ErrorKind::Other, "??")),
+    || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd install dir")),
     |x| Ok(x)
   )?;
 
@@ -63,8 +64,7 @@ fn _create_systemd_service_file(
       exec_file_path: path_to_binary,
       installation_dir: install_dir
     },
-    // TODO: Change to proper value later
-    &Path::new("/tmp/rusty-sailor/etcd/etcd.service")
+    &Path::new(ETCD_SYSTEMD_DEF_PATH)
   )
 }
 
