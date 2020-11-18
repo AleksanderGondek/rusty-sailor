@@ -24,7 +24,8 @@ Vagrant.configure("2") do |config|
     sudo make install
 
     echo 'export PATH=${PATH}:/usr/local/musl/bin' >> /home/vagrant/.bashrc
-    su vagrant
+  SHELL
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source /home/vagrant/.cargo/env
     rustup target add x86_64-unknown-linux-musl
