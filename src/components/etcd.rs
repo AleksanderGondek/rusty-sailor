@@ -22,7 +22,7 @@ const ETCD_SYSTEMD_DEF_PATH: &'static str = "/etc/systemd/system/etcd.service";
 #[derive(Template)]
 #[template(path = "etcd/etcd.service", escape = "none")]
 struct EtcdServiceTemplate<'a> {
-  env_file_path: &'a str,
+  config_file_path: &'a str,
   exec_file_path: &'a str,
   installation_dir: &'a str
 }
@@ -46,8 +46,8 @@ fn _create_systemd_service_file(
     ETCD_BINARY_NAME
   );
 
-  let path_to_env_file = path_to_env_file.to_str().map_or_else(
-    || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd.env file")),
+  let path_to_cfg_file = path_to_env_file.to_str().map_or_else(
+    || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd config file")),
     |x| Ok(x)
   )?;
   let path_to_binary = path_to_binary.to_str().map_or_else(
@@ -61,7 +61,7 @@ fn _create_systemd_service_file(
 
   render_and_save(
     EtcdServiceTemplate {
-      env_file_path: path_to_env_file,
+      config_file_path: path_to_cfg_file,
       exec_file_path: path_to_binary,
       installation_dir: install_dir
     },
