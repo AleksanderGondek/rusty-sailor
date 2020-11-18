@@ -5,18 +5,28 @@ Vagrant.configure("2") do |config|
   config.vm.box = "generic/centos7"
  
   
-  config.vm.network "private_network", ip: "192.168.99.10"
-  config.vm.synced_folder "../target/release", "/vagrant_data"
+  config.vm.network "private_network", ip: "192.168.99.11"
+  config.vm.synced_folder "../", "/vagrant_data"
 
   config.vm.provider :libvirt do |libvirt|
     libvirt.memory = 1024
   end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo yum update -y
+    sudo yum install -y git
+
+    cd /home/vagrant
+    git clone git://git.musl-libc.org/musl
+    cd /home/vagrant/musl
+    ./configure
+    make
+    sudo make install
+
+    echo 'export PATH=${PATH}:/usr/local/musl/bin' >> /home/vagrant/.bashrc
+    su vagrant
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source /home/vagrant/.cargo/env
+    rustup target add x86_64-unknown-linux-musl
+  SHELL
 end
