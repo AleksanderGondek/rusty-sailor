@@ -4,6 +4,7 @@ pub mod errors;
 pub mod fs;
 pub mod install_ctx;
 pub mod logging;
+pub mod net;
 pub mod pki;
 pub mod templates;
 pub mod vendored;

@@ -1,4 +1,6 @@
+bind_address = "198.168.10.1"
 debug = true
+hostname = "yacht.rusty-sailor.eu"
 installation_dir = "/tmp/rusty-sailor"
 
 [pki]

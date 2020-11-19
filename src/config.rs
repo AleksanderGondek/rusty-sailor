@@ -1,3 +1,6 @@
+use std::str::FromStr;
+use std::net::{IpAddr, Ipv4Addr};
+
 use config::{Config, ConfigError, File};
 use serde::Deserialize;
 
@@ -24,7 +27,9 @@ pub struct PkiSettings {
 #[derive(Debug, Deserialize)]
 #[serde(default)]
 pub struct Settings {
-  pub debug: bool,
+  pub bind_address: IpAddr,
+  pub debug: bool,  
+  pub hostname: String,
   pub installation_dir: String,
   pub pki: PkiSettings
 }
@@ -42,7 +47,9 @@ impl Settings {
 impl Default for Settings {
   fn default() -> Self {
     Settings {
+      bind_address: IpAddr::V4(Ipv4Addr::new(127,0,0,1)),
       debug: false,
+      hostname: "localhost".to_string(),
       installation_dir: "/tmp/rusty-sailor".to_string(),
       pki: PkiSettings {
         country_name: "PL".to_string(),

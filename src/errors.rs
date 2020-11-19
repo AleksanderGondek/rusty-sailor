@@ -83,3 +83,15 @@ impl From<askama::shared::Error> for InstallError {
     InstallError::new(ErrorKind::TemplateRender, error.to_string())
   }
 }
+
+impl From<std::string::FromUtf8Error> for InstallError {
+  fn from(error: std::string::FromUtf8Error) -> Self {
+    InstallError::new(ErrorKind::Config, error.to_string())
+  }
+}
+
+impl From<std::net::AddrParseError> for InstallError {
+  fn from(error: std::net::AddrParseError) -> Self {
+    InstallError::new(ErrorKind::Config, error.to_string())
+  }
+}
