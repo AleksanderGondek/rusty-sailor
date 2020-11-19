@@ -5,6 +5,7 @@ use clap::{
 
 use rusty_sailor::components::{InstallStepResult, run_steps};
 use rusty_sailor::components::etcd::etcd_component;
+use rusty_sailor::components::global_validation::global_validation_component;
 use rusty_sailor::install_ctx::InstallCtx;
 
 fn main() {
@@ -59,6 +60,7 @@ fn main() {
   );
 
   let install_components: Vec<&Fn(InstallCtx) -> InstallStepResult> = vec![
+    &global_validation_component,
     &ca_component,
     &etcd_component,
   ];
