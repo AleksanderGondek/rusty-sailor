@@ -5,6 +5,7 @@ use crate::install_ctx::InstallCtx;
 
 pub mod ca;
 pub mod etcd;
+pub mod global_validation;
 
 pub type InstallStepResult = Result<InstallCtx, InstallError>;
 

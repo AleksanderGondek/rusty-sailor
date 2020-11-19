@@ -3,6 +3,7 @@ use std::fmt;
 
 #[derive(Debug, Clone)]
 pub enum ErrorKind {
+  BindAddress,
   Config,
   CustomCANotSet,
   FileIo,
