@@ -4,29 +4,24 @@ use std::process::Command;
 use crate::errors::{ErrorKind, InstallError};
 
 
-pub fn guess_node_hostname() -> Result<String, InstallError> {
-  let output = Command::new("hostname").args(&["--fqdn"]).output()?;
-  let stdout = String::from_utf8(output.stdout)?;
-  Ok(stdout)
+pub fn guess_node_hostname() -> Option<String> {
+  let output = Command::new("hostname").args(&["--fqdn"]).output().ok()?;
+  let stdout = String::from_utf8(output.stdout).ok()?;
+  Some(stdout)
 }
 
-pub fn guess_node_ip() -> Result<IpAddr, InstallError> {
-  let output = Command::new("hostname").args(&["-i"]).output()?;
-  let stdout = String::from_utf8(output.stdout)?;
+pub fn guess_node_ip() -> Option<IpAddr> {
+  let output = Command::new("hostname").args(&["-i"]).output().ok()?;
+  let stdout = String::from_utf8(output.stdout).ok()?;
 
   let ip_addr_v4 = stdout.parse::<Ipv4Addr>();
   let ip_addr_v6 = stdout.parse::<Ipv6Addr>();
 
   if ip_addr_v4.is_ok() && ip_addr_v6.is_err() {
-    return Ok(IpAddr::V4(ip_addr_v4?));
+    return Some(IpAddr::V4(ip_addr_v4.ok()?));
   }
   if ip_addr_v4.is_err() && ip_addr_v6.is_ok() {
-    return Ok(IpAddr::V6(ip_addr_v6?));
+    return Some(IpAddr::V6(ip_addr_v6.ok()?));
   }
-  Err(
-    InstallError::new_from_str(
-      ErrorKind::Other,
-      "Unable to parse `hostname -i` response"
-    )
-  )
+  None
 }

@@ -4,6 +4,8 @@ use std::net::{IpAddr, Ipv4Addr};
 use config::{Config, ConfigError, File};
 use serde::Deserialize;
 
+use crate::net::{guess_node_hostname, guess_node_ip};
+
 #[derive(Debug, Deserialize)]
 pub struct CaSettings {
   pub common_name: String,
@@ -47,9 +49,13 @@ impl Settings {
 impl Default for Settings {
   fn default() -> Self {
     Settings {
-      bind_address: IpAddr::V4(Ipv4Addr::new(127,0,0,1)),
+      bind_address: guess_node_ip().unwrap_or(
+        IpAddr::V4(Ipv4Addr::new(127,0,0,1))
+      ),
       debug: false,
-      hostname: "localhost".to_string(),
+      hostname: guess_node_hostname().unwrap_or(
+        "localhost".to_string()
+      ),
       installation_dir: "/tmp/rusty-sailor".to_string(),
       pki: PkiSettings {
         country_name: "PL".to_string(),
