@@ -1,0 +1,41 @@
+name: "{{ name }}"
+data-dir: "{{ data_dir }}"
+
+listen-peer-urls: "{{ listen_peer_urls | join(','') }}"
+listen-client-urls: "{{ listen_client_urls | join(','') }}"
+
+initial-advertise-peer-urls: "{{ listen_peer_urls | join(','') }}"
+advertise-client-urls: "{{ listen_client_urls | join(','') }}"
+
+{% for (node,url) in initial_cluster %}
+initial-cluster: "{{ node }}={{ url }}"
+{% endfor %}
+initial-cluster-token: "{{ cluster_token }}"
+
+initial-cluster-state: "new"
+strict-reconfig-check: false
+
+max-snapshots: 5
+max-wals: 5
+
+enable-v2: false
+enable-pprof: true
+
+proxy: "off"
+
+client-transport-security:
+  cert-file: "{{ client_cert_path }}"
+  key-file: "{{ client_cert_key_path }}"
+  client-cert-auth: true
+  trusted-ca-file: "{{ ca_path }}"
+  auto-tls: false
+
+peer-transport-security:
+  cert-file: "{{ peer_cert_path }}"
+  key-file: "{{ peer_cert_key_path }}"
+  client-cert-auth: true
+  trusted-ca-file: "{{ ca_path }}"
+  auto-tls: false
+
+debug: false
+logger: "zap"
