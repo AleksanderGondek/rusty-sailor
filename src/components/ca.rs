@@ -1,5 +1,5 @@
 use std::fs::create_dir_all;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::components::InstallStepResult;
 use crate::errors::InstallError;
@@ -46,19 +46,19 @@ fn _ensure_ca_exists(
     ctx.ca_certificate = Some(ca_cert);
   }
 
-  let target_dir = Path::new(
-    &ctx.config.installation_dir
-  ).join(CA_DIRNAME);
+  let target_dir = get_etcd_dir_full_path(
+    &ctx
+  );
 
   create_dir_all(&target_dir)?;
 
   save_as_pem_private_key(
     &ctx.ca_private_key.as_ref().unwrap(),
-    &target_dir.join(CA_PKEY_NAME)
+    &get_ca_key_full_path(&ctx)
   )?;
   save_as_pem_certificate(
     &ctx.ca_certificate.as_ref().unwrap(),
-    &target_dir.join(CA_CERT_NAME)
+    &get_ca_cert_full_path(&ctx)
   )?;
 
   Ok(ctx)
@@ -86,4 +86,35 @@ pub fn create_ca_component<'a>(
   custom_ca_cert_path:& 'a Option<&str>
 ) -> Box<dyn Fn(InstallCtx) -> InstallStepResult + 'a > {
   Box::new(move |ctx:InstallCtx| _ca_component(ctx, custom_ca_pkey_path, custom_ca_cert_path))
+}
+
+
+pub fn get_etcd_dir_full_path(
+  ctx: &InstallCtx
+) -> PathBuf {
+  Path::new(
+    &ctx.config.installation_dir
+  ).join(
+    CA_DIRNAME
+  )
+}
+
+pub fn get_ca_key_full_path(
+  ctx: &InstallCtx
+) -> PathBuf {
+  get_etcd_dir_full_path(
+    &ctx
+  ).join(
+    CA_PKEY_NAME
+  )
+}
+
+pub fn get_ca_cert_full_path(
+  ctx: &InstallCtx
+) -> PathBuf {
+  get_etcd_dir_full_path(
+    &ctx
+  ).join(
+    CA_CERT_NAME
+  )
 }
