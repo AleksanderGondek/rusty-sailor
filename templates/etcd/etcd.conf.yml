@@ -1,11 +1,11 @@
-name: "{{ name }}"
+name: "{{ member_name }}"
 data-dir: "{{ data_dir }}"
 
-listen-peer-urls: "{{ listen_peer_urls | join(','') }}"
-listen-client-urls: "{{ listen_client_urls | join(','') }}"
+listen-peer-urls: "{{ listen_peer_urls }}"
+listen-client-urls: "{{ listen_client_urls }}"
 
-initial-advertise-peer-urls: "{{ listen_peer_urls | join(','') }}"
-advertise-client-urls: "{{ listen_client_urls | join(','') }}"
+initial-advertise-peer-urls: "{{ listen_peer_urls }}"
+advertise-client-urls: "{{ listen_client_urls }}"
 
 {% for (node,url) in initial_cluster %}
 initial-cluster: "{{ node }}={{ url }}"

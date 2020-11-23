@@ -16,7 +16,7 @@ use crate::vendored::unpack_archive;
 const ETCD_DIRNAME: &'static str = "etcd";
 const ETCD_ARCHIVE_NAME: &'static str = "etcd.tar.gz";
 const ETCD_BINARY_NAME: &'static str = "etcd";
-const ETCD_ENV_FILE_NAME: &'static str = "etcd.env";
+const ETCD_CFG_FILE_NAME: &'static str = "etcd.conf.yml";
 const ETCD_SYSTEMD_DEF_PATH: &'static str = "/etc/systemd/system/etcd.service";
 
 #[derive(Template)]
@@ -25,6 +25,22 @@ struct EtcdServiceTemplate<'a> {
   config_file_path: &'a str,
   exec_file_path: &'a str,
   installation_dir: &'a str
+}
+
+#[derive(Template)]
+#[template(path = "etcd/etcd.conf.yml", escape = "none")]
+struct EtcdConfigFileTemplate<'a> {
+  member_name: &'a str,
+  data_dir:  &'a str,
+  listen_peer_urls: &'a String,
+  listen_client_urls: &'a String,
+  initial_cluster: &'a Vec<(String, String)>,
+  cluster_token:  &'a str,
+  ca_path:  &'a str,
+  client_cert_path:  &'a str,
+  client_cert_key_path:  &'a str,
+  peer_cert_path:  &'a str,
+  peer_cert_key_path:  &'a str,
 }
 
 fn _get_etcd_files_to_extract() -> HashSet<OsString> {
@@ -36,17 +52,55 @@ fn _get_etcd_files_to_extract() -> HashSet<OsString> {
   etcd_artifacts_names
 }
 
+fn _create_etcd_cfg_file(
+  install_ctx: &InstallCtx,
+  path_to_cfg_file: &str,
+  path_to_data_dir: &str,
+) -> Result<(), InstallError> {
+  let listen_peer_url = vec![
+    format!("https://{}:2380", install_ctx.config.hostname),
+    format!("https://{}:2380", install_ctx.config.bind_address)
+  ];
+  let listen_client_url = vec![
+    format!("https://{}:2379", install_ctx.config.hostname),
+    format!("https://{}:2379", install_ctx.config.bind_address)
+  ];
+  let initial_cluster = vec![
+    (
+      install_ctx.config.hostname.clone(),
+      format!("https://{}:2379", install_ctx.config.hostname)
+    )
+  ];
+
+  render_and_save(
+    EtcdConfigFileTemplate {
+      member_name: &install_ctx.config.hostname,
+      data_dir: &path_to_data_dir,
+      listen_peer_urls: &listen_peer_url.join(", "),
+      listen_client_urls: &listen_client_url.join(", "),
+      initial_cluster: &initial_cluster,
+      cluster_token: "etcd-cluster",
+      ca_path: "todo/todo/todo.pem",
+      client_cert_path: "todo/todo/todo.pem",
+      client_cert_key_path: "todo/todo/todo.pem",
+      peer_cert_path: "todo/todo/todo.pem",
+      peer_cert_key_path: "todo/todo/todo.pem"
+    },
+    &Path::new(path_to_cfg_file)
+  )
+}
+
 fn _create_systemd_service_file(
   target_dir: &Path,
 ) -> Result<(), InstallError> {
-  let path_to_env_file = target_dir.join(
-    ETCD_ENV_FILE_NAME
+  let path_to_cfg_file = target_dir.join(
+    ETCD_CFG_FILE_NAME
   );
   let path_to_binary = target_dir.join(
     ETCD_BINARY_NAME
   );
 
-  let path_to_cfg_file = path_to_env_file.to_str().map_or_else(
+  let path_to_cfg_file = path_to_cfg_file.to_str().map_or_else(
     || Err(InstallError::new_from_str(ErrorKind::Other, "Could not construct path to etcd config file")),
     |x| Ok(x)
   )?;
