@@ -13,6 +13,13 @@ pub struct CaSettings {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct EtcdSettings {
+  pub data_dir: String,
+  pub listen_peer_port: u32,
+  pub listen_client_port: u32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct PkiSettings {
   // Shared x509 Attributes
   pub country_name: String,
@@ -31,6 +38,7 @@ pub struct PkiSettings {
 pub struct Settings {
   pub bind_address: IpAddr,
   pub debug: bool,  
+  pub etcd: EtcdSettings,
   pub hostname: String,
   pub installation_dir: String,
   pub pki: PkiSettings
@@ -53,6 +61,11 @@ impl Default for Settings {
         IpAddr::V4(Ipv4Addr::new(127,0,0,1))
       ),
       debug: false,
+      etcd: EtcdSettings {
+        data_dir: "/tmp/rusty-sailor/".to_string(),
+        listen_client_port: 2379,
+        listen_peer_port: 2380
+      },
       hostname: guess_node_hostname().unwrap_or(
         "localhost".to_string()
       ),

@@ -46,12 +46,13 @@ fn _ensure_ca_exists(
     ctx.ca_certificate = Some(ca_cert);
   }
 
-  let target_dir = get_etcd_dir_full_path(
+  let target_dir = get_ca_dir_full_path(
     &ctx
   );
 
   create_dir_all(&target_dir)?;
 
+  // TODO: Get rid of unwraps
   save_as_pem_private_key(
     &ctx.ca_private_key.as_ref().unwrap(),
     &get_ca_key_full_path(&ctx)
@@ -89,7 +90,7 @@ pub fn create_ca_component<'a>(
 }
 
 
-pub fn get_etcd_dir_full_path(
+pub fn get_ca_dir_full_path(
   ctx: &InstallCtx
 ) -> PathBuf {
   Path::new(
@@ -102,7 +103,7 @@ pub fn get_etcd_dir_full_path(
 pub fn get_ca_key_full_path(
   ctx: &InstallCtx
 ) -> PathBuf {
-  get_etcd_dir_full_path(
+  get_ca_dir_full_path(
     &ctx
   ).join(
     CA_PKEY_NAME
@@ -112,7 +113,7 @@ pub fn get_ca_key_full_path(
 pub fn get_ca_cert_full_path(
   ctx: &InstallCtx
 ) -> PathBuf {
-  get_etcd_dir_full_path(
+  get_ca_dir_full_path(
     &ctx
   ).join(
     CA_CERT_NAME
