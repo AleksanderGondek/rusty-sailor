@@ -1,3 +1,5 @@
+use log::error;
+
 use clap::{
   crate_authors, crate_description, crate_name, crate_version, 
   App, Arg
@@ -70,6 +72,10 @@ fn main() {
     install_components
   ) {
     Ok(_) => std::process::exit(0),
-    Err(_) => std::process::exit(1)
+    Err(e) => {
+      error!("Installer execution has ended with a failure!");
+      error!("Error details: '{}'", e.to_string());
+      std::process::exit(1)
+    }
   };
 }
