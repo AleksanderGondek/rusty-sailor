@@ -129,7 +129,7 @@ fn _get_peer_cert_full_path(
 }
 
 fn _stringify(
-  path: &PathBuf
+  path: &Path
 ) -> Result<&str, InstallError> {
   path.to_str().map_or_else(
     || Err(InstallError::new(
@@ -140,8 +140,12 @@ fn _stringify(
   )
 }
 
-fn _ensure_certificates_exits(
-  install_ctx: &InstallCtx
+fn _ensure_certificates_exit(
+  install_ctx: &InstallCtx,
+  path_to_peer_pkey: &Path,
+  path_to_peer_cert: &Path,
+  path_to_client_pkey: &Path,
+  path_to_client_cert: &Path
 ) -> Result<(), InstallError> {
   let ca_private_key = install_ctx.ca_private_key.as_ref().map_or_else(
     || Err(InstallError::new_from_str(ErrorKind::Other, "CA private key not found in install_ctx")),
@@ -151,10 +155,7 @@ fn _ensure_certificates_exits(
     || Err(InstallError::new_from_str(ErrorKind::Other, "CA cert not found in install_ctx")),
     |x| Ok(x)
   )?;
-
-  let cert_dir = _get_certs_dir_full_path(&install_ctx);
-  create_dir_all(&cert_dir)?;
-
+  
   let (peer_pkey, peer_cert) = create_ca_signed_certificate(
     &install_ctx.config.pki,
     &ca_private_key,
@@ -166,11 +167,11 @@ fn _ensure_certificates_exits(
   )?;
   save_as_pem_private_key(
     &peer_pkey,
-    &_get_peer_pkey_full_path(&install_ctx)
+    &path_to_peer_pkey
   )?;
   save_as_pem_certificate(
     &peer_cert,
-    &_get_peer_cert_full_path(&install_ctx)
+    &path_to_peer_cert
   )?;
 
   let (client_pkey, client_cert) = create_ca_signed_certificate(
@@ -184,18 +185,25 @@ fn _ensure_certificates_exits(
   )?;
   save_as_pem_private_key(
     &client_pkey,
-    &_get_client_pkey_full_path(&install_ctx)
+    &path_to_client_pkey
   )?;
   save_as_pem_certificate(
     &client_cert,
-    &_get_client_cert_full_path(&install_ctx)
+    &path_to_client_cert
   )?;
 
   Ok(())
 }
 
-fn _create_etcd_cfg_file(
+fn _create_config_file(
   install_ctx: &InstallCtx,
+  path_to_data_dir: &Path,
+  path_to_config_file: &Path,
+  path_to_ca_cert: &Path,
+  path_to_peer_pkey: &Path,
+  path_to_peer_cert: &Path,
+  path_to_client_pkey: &Path,
+  path_to_client_cert: &Path
 ) -> Result<(), InstallError> {
   let listen_peer_url = vec![
     format!(
@@ -222,52 +230,34 @@ fn _create_etcd_cfg_file(
     )
   ];
 
-  let path_to_config_file = _get_config_full_path(&install_ctx);
-  let path_to_config_file = _stringify(&path_to_config_file)?;
-  let path_to_ca_cert = get_ca_cert_full_path(&install_ctx);
-  let path_to_ca_cert = _stringify(&path_to_ca_cert)?;
-  let path_to_client_pkey = _get_client_pkey_full_path(&install_ctx);
-  let path_to_client_pkey = _stringify(&path_to_client_pkey)?;
-  let path_to_client_cert = _get_client_cert_full_path(&install_ctx);
-  let path_to_client_cert = _stringify(&path_to_client_cert)?;
-  let path_to_peer_pkey = _get_peer_pkey_full_path(&install_ctx);
-  let path_to_peer_pkey = _stringify(&path_to_peer_pkey)?;
-  let path_to_peer_cert = _get_peer_cert_full_path(&install_ctx);
-  let path_to_peer_cert = _stringify(&path_to_peer_cert)?;
-
   render_and_save(
     EtcdConfigFileTemplate {
       member_name: &install_ctx.config.hostname,
-      data_dir: &install_ctx.config.etcd.data_dir,
+      data_dir: &_stringify(&path_to_data_dir)?,
       listen_peer_urls: &listen_peer_url.join(", "),
       listen_client_urls: &listen_client_url.join(", "),
       initial_cluster: &initial_cluster,
       cluster_token: "etcd-cluster",
-      ca_path: &path_to_ca_cert,
-      client_cert_path: &path_to_client_cert,
-      client_cert_key_path: &path_to_client_pkey,
-      peer_cert_path: &path_to_peer_cert,
-      peer_cert_key_path: &path_to_peer_pkey
+      ca_path: &_stringify(&path_to_ca_cert)?,
+      client_cert_path: &_stringify(&path_to_client_cert)?,
+      client_cert_key_path: &_stringify(&path_to_client_pkey)?,
+      peer_cert_path: &_stringify(&path_to_peer_cert)?,
+      peer_cert_key_path: &_stringify(&path_to_peer_pkey)?
     },
-    &Path::new(path_to_config_file)
+    &path_to_config_file
   )
 }
 
 fn _create_systemd_service_file(
-  install_ctx: &InstallCtx,
+  path_to_config_file: &Path,
+  path_to_binary: &Path,
+  path_to_root_dir: &Path
 ) -> Result<(), InstallError> {
-  let install_dir = _get_etcd_root_dir(&install_ctx);
-  let install_dir = _stringify(&install_dir)?;
-  let path_to_cfg_file = _get_config_full_path(&install_ctx);
-  let path_to_cfg_file = _stringify(&path_to_cfg_file)?;
-  let path_to_binary = _get_binary_full_path(&install_ctx);
-  let path_to_binary = _stringify(&path_to_binary)?;
-
   render_and_save(
     EtcdServiceTemplate {
-      config_file_path: path_to_cfg_file,
-      exec_file_path: path_to_binary,
-      installation_dir: install_dir
+      config_file_path: &_stringify(&path_to_config_file)?,
+      exec_file_path: &_stringify(&path_to_binary)?,
+      installation_dir: &_stringify(&path_to_root_dir)?
     },
     &Path::new(ETCD_SYSTEMD_DEF_PATH)
   )
@@ -295,19 +285,53 @@ pub fn etcd_component(
 ) -> InstallStepResult {
   let etcd_artifacts = _get_etcd_files_to_extract();
   
-  let etcd_root_dir = _get_etcd_root_dir(&install_ctx);
-  let etcd_data_dir = _get_etcd_data_dir(&install_ctx);
+  let path_to_root_dir = _get_etcd_root_dir(&install_ctx);
+  let path_to_data_dir = _get_etcd_data_dir(&install_ctx);
+  let path_to_certs_dir = _get_certs_dir_full_path(&install_ctx);
+  
+  let path_to_binary = _get_binary_full_path(&install_ctx);
+  let path_to_config_file = _get_config_full_path(&install_ctx);
 
-  create_dir_all(&etcd_root_dir)?;
-  create_dir_all(&etcd_data_dir)?;
+  // TODO: CHange to Path
+  let path_to_ca_cert = get_ca_cert_full_path(&install_ctx);
+  let path_to_ca_cert = path_to_ca_cert.as_path();
 
-  unpack_archive(ETCD_ARCHIVE_NAME, &etcd_root_dir)?;
-  flatten(&etcd_root_dir, Some(&etcd_artifacts))?;
+  let path_to_client_pkey = _get_client_pkey_full_path(&install_ctx);
+  let path_to_client_cert = _get_client_cert_full_path(&install_ctx);
+  let path_to_peer_pkey = _get_peer_pkey_full_path(&install_ctx);
+  let path_to_peer_cert = _get_peer_cert_full_path(&install_ctx);
 
-  _ensure_certificates_exits(&install_ctx)?;
-  _create_etcd_cfg_file(&install_ctx)?;
+  create_dir_all(&path_to_root_dir)?;
+  create_dir_all(&path_to_data_dir)?;
 
-  _create_systemd_service_file(&install_ctx)?;
+  unpack_archive(ETCD_ARCHIVE_NAME, &path_to_root_dir)?;
+  flatten(&path_to_root_dir, Some(&etcd_artifacts))?;
+
+  create_dir_all(&path_to_certs_dir)?;
+  _ensure_certificates_exit(
+    &install_ctx,
+    &path_to_client_pkey,
+    &path_to_client_cert,
+    &path_to_peer_pkey,
+    &path_to_peer_cert
+  )?;
+
+  _create_config_file(
+    &install_ctx,
+    &path_to_data_dir,
+    &path_to_config_file,
+    &path_to_ca_cert,
+    &path_to_client_pkey,
+    &path_to_client_cert,
+    &path_to_peer_pkey,
+    &path_to_peer_cert
+  )?;
+
+  _create_systemd_service_file(
+    &path_to_config_file,
+    &path_to_binary,
+    &path_to_root_dir
+  )?;
   _enable_systemd_service()?;
 
   Ok(install_ctx)
