@@ -60,72 +60,54 @@ fn _get_etcd_files_to_extract() -> HashSet<OsString> {
   etcd_artifacts_names
 }
 
-fn _get_etcd_root_dir(
+fn _get_etcd_paths(
   ctx: &InstallCtx
-) -> PathBuf {
-  Path::new(
+) -> (PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf) {
+  let path_to_root_dir = Path::new(
     &ctx.config.installation_dir
   ).join(
     ETCD_DIRNAME
-  )
-}
-
-fn _get_etcd_data_dir(
-  ctx: &InstallCtx
-) -> PathBuf {
-  Path::new(
+  );
+  let path_to_data_dir = Path::new(
     &ctx.config.etcd.data_dir
   ).join(
     ETCD_DIRNAME
-  )
-}
+  );
 
-fn _get_binary_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_etcd_root_dir(&ctx).join(
-    ETCD_BINARY_NAME
-  )
-}
-
-fn _get_config_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_etcd_root_dir(&ctx).join(
-    ETCD_CFG_FILE_NAME
-  )
-}
-
-fn _get_certs_dir_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_etcd_root_dir(&ctx).join(
+  let path_to_certs_dir = path_to_root_dir.join(
     ETCD_CERT_DIRNAME
+  );
+  let path_to_binary = path_to_root_dir.join(
+    ETCD_BINARY_NAME
+  );
+  let path_to_config_file = path_to_root_dir.join(
+    ETCD_CFG_FILE_NAME
+  );
+
+  let path_to_client_pkey = path_to_certs_dir.join(
+    ETCD_CLIENT_PKEY_PATH
+  );
+  let path_to_client_cert = path_to_certs_dir.join(
+    ETCD_CLIENT_CERT_PATH
+  );
+  let path_to_peer_pkey = path_to_certs_dir.join(
+    ETCD_PEER_PKEY_PATH
+  );
+  let path_to_peer_cert = path_to_certs_dir.join(
+    ETCD_PEER_CERT_PATH
+  );
+
+  (
+    path_to_root_dir,
+    path_to_data_dir,
+    path_to_certs_dir,
+    path_to_binary,
+    path_to_config_file,
+    path_to_client_pkey,
+    path_to_client_cert,
+    path_to_peer_pkey,
+    path_to_peer_cert
   )
-}
-
-fn _get_client_pkey_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_certs_dir_full_path(&ctx).join(ETCD_CLIENT_PKEY_PATH)
-}
-
-fn _get_client_cert_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_certs_dir_full_path(&ctx).join(ETCD_CLIENT_CERT_PATH)
-}
-
-fn _get_peer_pkey_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_certs_dir_full_path(&ctx).join(ETCD_PEER_PKEY_PATH)
-}
-
-fn _get_peer_cert_full_path(
-  ctx: &InstallCtx
-) -> PathBuf {
-  _get_certs_dir_full_path(&ctx).join(ETCD_PEER_CERT_PATH)
 }
 
 fn _stringify(
@@ -284,22 +266,18 @@ pub fn etcd_component(
   mut install_ctx: InstallCtx
 ) -> InstallStepResult {
   let etcd_artifacts = _get_etcd_files_to_extract();
-  
-  let path_to_root_dir = _get_etcd_root_dir(&install_ctx);
-  let path_to_data_dir = _get_etcd_data_dir(&install_ctx);
-  let path_to_certs_dir = _get_certs_dir_full_path(&install_ctx);
-  
-  let path_to_binary = _get_binary_full_path(&install_ctx);
-  let path_to_config_file = _get_config_full_path(&install_ctx);
-
-  // TODO: CHange to Path
   let path_to_ca_cert = get_ca_cert_full_path(&install_ctx);
-  let path_to_ca_cert = path_to_ca_cert.as_path();
-
-  let path_to_client_pkey = _get_client_pkey_full_path(&install_ctx);
-  let path_to_client_cert = _get_client_cert_full_path(&install_ctx);
-  let path_to_peer_pkey = _get_peer_pkey_full_path(&install_ctx);
-  let path_to_peer_cert = _get_peer_cert_full_path(&install_ctx);
+  let (
+    path_to_root_dir,
+    path_to_data_dir,
+    path_to_certs_dir,
+    path_to_binary,
+    path_to_config_file,
+    path_to_client_pkey,
+    path_to_client_cert,
+    path_to_peer_pkey,
+    path_to_peer_cert
+  ) = _get_etcd_paths(&install_ctx);
 
   create_dir_all(&path_to_root_dir)?;
   create_dir_all(&path_to_data_dir)?;

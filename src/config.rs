@@ -62,7 +62,7 @@ impl Default for Settings {
       ),
       debug: false,
       etcd: EtcdSettings {
-        data_dir: "/tmp/rusty-sailor/".to_string(),
+        data_dir: "/tmp/rusty-sailor/etcd/data".to_string(),
         listen_client_port: 2379,
         listen_peer_port: 2380
       },
