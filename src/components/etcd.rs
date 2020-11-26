@@ -247,17 +247,18 @@ fn _create_systemd_service_file(
 
 fn _enable_systemd_service(
 ) -> Result<(), InstallError> {
+  // TODO: Doesn't fail on error code
   Command::new("sh")
     .arg("-c")
-    .arg("systemctl reload")
+    .arg("'sudo systemctl daemon-reload'")
     .output()?;
   Command::new("sh")
     .arg("-c")
-    .arg("systemctl enable etcd.service")
+    .arg("'systemctl enable etcd.service'")
     .output()?;
   Command::new("sh")
     .arg("-c")
-    .arg("systemctl start etcd.service")
+    .arg("'systemctl start etcd.service'")
     .output()?;
   Ok(())
 }

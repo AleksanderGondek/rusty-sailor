@@ -9,7 +9,7 @@ Type=notify
 RemainAfterExit=false
 GuessMainPID=true
 Restart=false
-ExecStart="{{ exec_file_path }} --config-file='{{ config_file_path }}'"
+ExecStart={{ exec_file_path }} --config-file={{ config_file_path }}
 OOMPolicy=kill
 LimitNOFILE=40000
 {{ "\n" }}
