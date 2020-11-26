@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use std::net::{IpAddr, Ipv4Addr};
 
 use config::{Config, ConfigError, File};

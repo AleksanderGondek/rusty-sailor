@@ -1,8 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::process::Command;
 
-use crate::errors::{ErrorKind, InstallError};
-
 
 pub fn guess_node_hostname() -> Option<String> {
   let output = Command::new("hostname").args(&["--fqdn"]).output().ok()?;

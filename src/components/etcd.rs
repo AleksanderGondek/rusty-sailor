@@ -6,7 +6,7 @@ use std::process::Command;
 
 use askama::Template;
 
-use crate::components::ca::{get_ca_key_full_path, get_ca_cert_full_path};
+use crate::components::ca::{get_ca_cert_full_path};
 use crate::components::InstallStepResult;
 use crate::errors::{ErrorKind, InstallError};
 use crate::fs::flatten;
