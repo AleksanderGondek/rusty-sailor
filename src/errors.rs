@@ -9,6 +9,7 @@ pub enum ErrorKind {
   FileIo,
   Logger,
   OpenSSL,
+  Systemd,
   TemplateRender,
   UnpackArchive,
   Other
