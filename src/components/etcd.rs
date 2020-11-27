@@ -247,41 +247,25 @@ fn _create_systemd_service_file(
 
 fn _enable_systemd_service(
 ) -> Result<(), InstallError> {
-  let daemon_reload_output = Command::new("sh")
-    .arg("-c")
-    .arg("'systemctl daemon-reload'")
-    .output()?;
-  if !daemon_reload_output.status.success() {
-    return Err(
-      InstallError::new(
-        ErrorKind::Systemd,
-        format!("Command `systemctl daemon-reload` has failed.")
+  let systemctl_commands = vec![
+    "'systemctl daemon-reload'",
+    "'systemctl enable etcd.service'",
+    "'systemctl start etcd.service'"
+  ];
+
+  for cmd in systemctl_commands {
+    let output = Command::new("sh")
+      .arg("-c")
+      .arg(cmd)
+      .output()?;
+    if !output.status.success() {
+      return Err(
+        InstallError::new(
+          ErrorKind::Systemd,
+          format!("Command {} has failed.", cmd)
+        )
       )
-    )
-  }
-  let service_enable_output = Command::new("sh")
-    .arg("-c")
-    .arg("'systemctl enable etcd.service'")
-    .output()?;
-  if !service_enable_output.status.success() {
-    return Err(
-      InstallError::new(
-        ErrorKind::Systemd,
-        format!("Command `systemctl enable etcd.service` has failed.")
-      )
-    )
-  }
-  let service_start_output = Command::new("sh")
-    .arg("-c")
-    .arg("'systemctl start etcd.service'")
-    .output()?;
-  if !service_start_output.status.success() {
-    return Err(
-      InstallError::new(
-        ErrorKind::Systemd,
-        format!("Command `systemctl start etcd.service` has failed.")
-      )
-    )
+    }
   }
   Ok(())
 }
