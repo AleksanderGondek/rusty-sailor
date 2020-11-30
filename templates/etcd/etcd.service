@@ -6,9 +6,9 @@ AssertPathExists={{ installation_dir }}
 
 [Service]
 Type=notify
-RemainAfterExit=false
-GuessMainPID=true
-Restart=false
+RemainAfterExit=no
+GuessMainPID=yes
+Restart=no
 ExecStart={{ exec_file_path }} --config-file={{ config_file_path }}
 OOMPolicy=kill
 LimitNOFILE=40000
