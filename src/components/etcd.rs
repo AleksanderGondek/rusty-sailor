@@ -248,9 +248,9 @@ fn _create_systemd_service_file(
 fn _enable_systemd_service(
 ) -> Result<(), InstallError> {
   let systemctl_commands = vec![
-    "'systemctl daemon-reload'",
-    "'systemctl enable etcd.service'",
-    "'systemctl start etcd.service'"
+    "systemctl daemon-reload",
+    "systemctl enable etcd.service",
+    "systemctl start etcd.service"
   ];
 
   for cmd in systemctl_commands {
