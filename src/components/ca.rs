@@ -1,6 +1,8 @@
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
+use log::info;
+
 use crate::components::InstallStepResult;
 use crate::errors::{ErrorKind, InstallError};
 use crate::install_ctx::InstallCtx;
@@ -31,9 +33,16 @@ fn _load_custom_ca(
       crate::pki::io::load_pem_certificate(ca_cert_path)
     }
   );
-  // TODO: Explicitly inform that custom ca was not found
+
+  if ca_pkey.is_err() {
+    info!("Unable to load custom ca private key");
+  }
   ctx.ca_private_key = ca_pkey.ok();
+  if ca_cert.is_err() {
+    info!("Unable to load custom ca certificate");
+  }
   ctx.ca_certificate = ca_cert.ok();
+
   Ok(ctx)
 }
 
