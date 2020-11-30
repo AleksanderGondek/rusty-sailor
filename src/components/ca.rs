@@ -2,7 +2,7 @@ use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
 use crate::components::InstallStepResult;
-use crate::errors::InstallError;
+use crate::errors::{ErrorKind, InstallError};
 use crate::install_ctx::InstallCtx;
 use crate::pki::cert::create_ca_certificate;
 use crate::pki::io::{
@@ -52,13 +52,33 @@ fn _ensure_ca_exists(
 
   create_dir_all(&target_dir)?;
 
-  // TODO: Get rid of unwraps
+  let private_key = ctx.ca_private_key.as_ref().map_or_else(
+    || Err(
+      InstallError::new_from_str(
+        ErrorKind::Other,
+        "Unexpected fatal error, while \
+        trying to read ca private key"
+      )
+    ),
+    |key| Ok(key)
+  )?;
+  let cert = ctx.ca_certificate.as_ref().map_or_else(
+    || Err(
+      InstallError::new_from_str(
+        ErrorKind::Other,
+        "Unexpected fatal error, while \
+        trying to read ca cert"
+      )
+    ),
+    |cert| Ok(cert)
+  )?;
+
   save_as_pem_private_key(
-    &ctx.ca_private_key.as_ref().unwrap(),
+    &private_key,
     &get_ca_key_full_path(&ctx)
   )?;
   save_as_pem_certificate(
-    &ctx.ca_certificate.as_ref().unwrap(),
+    &cert,
     &get_ca_cert_full_path(&ctx)
   )?;
 
