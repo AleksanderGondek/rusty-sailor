@@ -14,3 +14,8 @@ rsa_size = 4096
 [pki.ca]
 common_name = "rusty-sailor-ca"
 expiry_in_days = 3651
+
+[etcd]
+data_dir: "/tmp/rusty-sailor/etcd/data"
+listen_client_port: 2379
+listen_peer_port: 2380
