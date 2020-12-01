@@ -9,7 +9,7 @@ advertise-client-urls: "{{ listen_client_urls }}"
 
 initial-cluster: "{{ initial_cluster }}"
 initial-cluster-token: "{{ cluster_token }}"
-initial-cluster-state: "new"
+initial-cluster-state: "{{ initial_cluster_state }}"
 
 strict-reconfig-check: false
 

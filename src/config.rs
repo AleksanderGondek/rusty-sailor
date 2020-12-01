@@ -20,6 +20,7 @@ pub struct EtcdNode {
 #[derive(Debug, Deserialize)]
 pub struct EtcdSettings {
   pub data_dir: String,
+  pub initial_cluster_state: String,
   pub listen_peer_port: u32,
   pub listen_client_port: u32,
   pub other_nodes: Option<Vec<EtcdNode>>
@@ -69,6 +70,7 @@ impl Default for Settings {
       debug: false,
       etcd: EtcdSettings {
         data_dir: "/tmp/rusty-sailor/etcd/data".to_string(),
+        initial_cluster_state: "new".to_string(),
         listen_client_port: 2379,
         listen_peer_port: 2380,
         other_nodes: None
