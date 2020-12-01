@@ -26,6 +26,7 @@ const ETCD_PEER_PKEY_PATH: &'static str = "etcd-peer.private-key.pem";
 const ETCD_PEER_CERT_PATH: &'static str = "etcd-peer.pem";
 const ETCD_CFG_FILE_NAME: &'static str = "etcd.conf.yml";
 const ETCD_SYSTEMD_DEF_PATH: &'static str = "/etc/systemd/system/etcd.service";
+const ETCDCTL_BINARY_NAME: &'static str = "etcdctl";
 
 #[derive(Template)]
 #[template(path = "etcd/etcd.service", escape = "none")]
@@ -62,7 +63,12 @@ fn _get_etcd_files_to_extract() -> HashSet<OsString> {
 
 fn _get_etcd_paths(
   ctx: &InstallCtx
-) -> (PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf,PathBuf) {
+) -> (
+  PathBuf,PathBuf,PathBuf,
+  PathBuf,PathBuf,PathBuf,
+  PathBuf,PathBuf,PathBuf,
+  PathBuf
+) {
   let path_to_root_dir = Path::new(
     &ctx.config.installation_dir
   ).join(
@@ -97,6 +103,10 @@ fn _get_etcd_paths(
     ETCD_PEER_CERT_PATH
   );
 
+  let path_to_etcdctl = path_to_root_dir.join(
+    ETCDCTL_BINARY_NAME
+  );
+
   (
     path_to_root_dir,
     path_to_data_dir,
@@ -106,7 +116,8 @@ fn _get_etcd_paths(
     path_to_client_pkey,
     path_to_client_cert,
     path_to_peer_pkey,
-    path_to_peer_cert
+    path_to_peer_cert,
+    path_to_etcdctl
   )
 }
 
@@ -284,7 +295,8 @@ pub fn etcd_component(
     path_to_client_pkey,
     path_to_client_cert,
     path_to_peer_pkey,
-    path_to_peer_cert
+    path_to_peer_cert,
+    path_to_etcdctl
   ) = _get_etcd_paths(&install_ctx);
 
   create_dir_all(&path_to_root_dir)?;
