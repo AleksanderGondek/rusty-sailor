@@ -8,6 +8,7 @@ use askama::Template;
 
 use crate::components::ca::{get_ca_cert_full_path};
 use crate::components::InstallStepResult;
+use crate::config::EtcdNode;
 use crate::errors::{ErrorKind, InstallError};
 use crate::fs::flatten;
 use crate::install_ctx::InstallCtx;
@@ -43,7 +44,7 @@ struct EtcdConfigFileTemplate<'a> {
   data_dir:  &'a str,
   listen_peer_urls: &'a String,
   listen_client_urls: &'a String,
-  initial_cluster: &'a Vec<(String, String)>,
+  initial_cluster: &'a String,
   cluster_token:  &'a str,
   ca_path:  &'a str,
   client_cert_path:  &'a str,
@@ -118,6 +119,38 @@ fn _get_etcd_paths(
     path_to_peer_pkey,
     path_to_peer_cert,
     path_to_etcdctl
+  )
+}
+
+fn _get_initial_cluster(
+  install_ctx: &InstallCtx
+) -> Result<String, InstallError> {
+  let mut initial_cluster = vec![
+    (
+      install_ctx.config.hostname.clone(),
+      format!(
+        "https://{}:{}",
+        install_ctx.config.bind_address,
+        install_ctx.config.etcd.listen_peer_port
+      )
+    )
+  ];
+  let other_nodes: Vec<EtcdNode> = vec![];
+  let other_nodes = &install_ctx.config.etcd.other_nodes.as_ref().unwrap_or(&other_nodes);
+  for node in other_nodes.into_iter() {
+    initial_cluster.push(
+      (
+        node.name.clone(),
+        node.peer_url.clone()
+      )
+    );
+  }
+  Ok(
+    initial_cluster
+      .iter()
+      .map(|x| format!("{}={}", x.0, x.1))
+      .collect::<Vec<String>>()
+      .join("-")
   )
 }
 
@@ -212,16 +245,8 @@ fn _create_config_file(
       install_ctx.config.etcd.listen_client_port
     )
   ];
-  let initial_cluster = vec![
-    (
-      install_ctx.config.hostname.clone(),
-      format!(
-        "https://{}:{}",
-        install_ctx.config.bind_address,
-        install_ctx.config.etcd.listen_peer_port
-      )
-    )
-  ];
+
+  let initial_cluster = _get_initial_cluster(&install_ctx)?;
 
   render_and_save(
     EtcdConfigFileTemplate {

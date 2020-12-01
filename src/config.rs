@@ -12,10 +12,17 @@ pub struct CaSettings {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct EtcdNode {
+  pub name: String,
+  pub peer_url: String
+}
+
+#[derive(Debug, Deserialize)]
 pub struct EtcdSettings {
   pub data_dir: String,
   pub listen_peer_port: u32,
   pub listen_client_port: u32,
+  pub other_nodes: Option<Vec<EtcdNode>>
 }
 
 #[derive(Debug, Deserialize)]
@@ -63,7 +70,8 @@ impl Default for Settings {
       etcd: EtcdSettings {
         data_dir: "/tmp/rusty-sailor/etcd/data".to_string(),
         listen_client_port: 2379,
-        listen_peer_port: 2380
+        listen_peer_port: 2380,
+        other_nodes: None
       },
       hostname: guess_node_hostname().unwrap_or(
         "localhost".to_string()

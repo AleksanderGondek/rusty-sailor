@@ -7,12 +7,10 @@ listen-client-urls: "{{ listen_client_urls }}"
 initial-advertise-peer-urls: "{{ listen_peer_urls }}"
 advertise-client-urls: "{{ listen_client_urls }}"
 
-{% for (node,url) in initial_cluster %}
-initial-cluster: "{{ node }}={{ url }}"
-{% endfor %}
+initial-cluster: "{{ initial_cluster }}"
 initial-cluster-token: "{{ cluster_token }}"
-
 initial-cluster-state: "new"
+
 strict-reconfig-check: false
 
 max-snapshots: 5
