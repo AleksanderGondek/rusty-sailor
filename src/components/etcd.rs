@@ -155,6 +155,19 @@ fn _get_initial_cluster(
   )
 }
 
+fn _get_join_endpoints(
+  install_ctx: &InstallCtx
+) -> Result<String, InstallError> {
+  let other_nodes: Vec<EtcdNode> = vec![];
+  let other_nodes = install_ctx.config.etcd.other_nodes.as_ref().unwrap_or(&other_nodes).clone();
+  Ok(
+    other_nodes.into_iter()
+    .map(|n| n.peer_url.clone())
+    .collect::<Vec<String>>()
+    .join(",")
+  )
+}
+
 fn _stringify(
   path: &Path
 ) -> Result<&str, InstallError> {
@@ -282,28 +295,22 @@ fn _create_systemd_service_file(
 fn _join_exiting_cluster(
   install_ctx: &InstallCtx,
   path_to_etcdctl: &Path,
-  peer_cert_path: &Path,
-  peer_cert_key_path: &Path,
+  client_key_path: &Path,
+  client_cert_path: &Path,
   ca_path: &Path,
 ) -> Result<(), InstallError> {
-  let listen_peer_url = format!(
-    "https://{}:{}",
-    install_ctx.config.bind_address,
-    install_ctx.config.etcd.listen_peer_port
-  );
-
   let join_command = format!(
     "{path_to_etcdctl} \
-    member add {member_name} \
-    --peer_urls={peer_urls} \
-    --peer-cert-file={peer_cert_path} \
-    --peer-key-file={peer_cert_key_path} \
-    --peer-trusted-ca-file={ca_path}",
+    --endpoints={endpoints} \
+    --key={client_key_path} \
+    --cert={client_cert_path} \
+    --cacert={ca_path} \
+    member add {member_name}",
     path_to_etcdctl=_stringify(path_to_etcdctl)?,
+    endpoints=_get_join_endpoints(&install_ctx)?,
     member_name=&install_ctx.config.hostname,
-    peer_urls=listen_peer_url,
-    peer_cert_path=_stringify(peer_cert_path)?,
-    peer_cert_key_path=_stringify(peer_cert_key_path)?,
+    client_key_path=_stringify(client_key_path)?,
+    client_cert_path=_stringify(client_cert_path)?,
     ca_path=_stringify(ca_path)?
   );
   
