@@ -232,20 +232,16 @@ fn _create_config_file(
   path_to_client_pkey: &Path,
   path_to_client_cert: &Path
 ) -> Result<(), InstallError> {
-  let listen_peer_url = vec![
-    format!(
-      "https://{}:{}",
-      install_ctx.config.bind_address,
-      install_ctx.config.etcd.listen_peer_port
-    )
-  ];
-  let listen_client_url = vec![
-    format!(
-      "https://{}:{}",
-      install_ctx.config.bind_address,
-      install_ctx.config.etcd.listen_client_port
-    )
-  ];
+  let listen_peer_url = format!(
+    "https://{}:{}",
+    install_ctx.config.bind_address,
+    install_ctx.config.etcd.listen_peer_port
+  );
+  let listen_client_url = format!(
+    "https://{}:{}",
+    install_ctx.config.bind_address,
+    install_ctx.config.etcd.listen_client_port
+  );
 
   let initial_cluster = _get_initial_cluster(&install_ctx)?;
 
@@ -253,8 +249,8 @@ fn _create_config_file(
     EtcdConfigFileTemplate {
       member_name: &install_ctx.config.hostname,
       data_dir: &_stringify(&path_to_data_dir)?,
-      listen_peer_urls: &listen_peer_url.join(", "),
-      listen_client_urls: &listen_client_url.join(", "),
+      listen_peer_urls: &listen_peer_url,
+      listen_client_urls: &listen_client_url,
       initial_cluster: &initial_cluster,
       cluster_token: "etcd-cluster",
       initial_cluster_state: &install_ctx.config.etcd.initial_cluster_state,
@@ -290,13 +286,11 @@ fn _join_exiting_cluster(
   peer_cert_key_path: &Path,
   ca_path: &Path,
 ) -> Result<(), InstallError> {
-  let listen_peer_url = vec![
-    format!(
-      "https://{}:{}",
-      install_ctx.config.bind_address,
-      install_ctx.config.etcd.listen_peer_port
-    )
-  ];
+  let listen_peer_url = format!(
+    "https://{}:{}",
+    install_ctx.config.bind_address,
+    install_ctx.config.etcd.listen_peer_port
+  );
 
   let join_command = format!(
     "{path_to_etcdctl} \
@@ -307,7 +301,7 @@ fn _join_exiting_cluster(
     --peer-trusted-ca-file={ca_path}",
     path_to_etcdctl=_stringify(path_to_etcdctl)?,
     member_name=&install_ctx.config.hostname,
-    peer_urls=listen_peer_url.join(", "),
+    peer_urls=listen_peer_url,
     peer_cert_path=_stringify(peer_cert_path)?,
     peer_cert_key_path=_stringify(peer_cert_key_path)?,
     ca_path=_stringify(ca_path)?
