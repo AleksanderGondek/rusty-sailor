@@ -395,6 +395,21 @@ pub fn etcd_component(
     &path_to_binary,
     &path_to_root_dir
   )?;
+
+  let should_attempt_join = (
+    install_ctx.config.etcd.initial_cluster_state == "existing".to_string()
+    && install_ctx.config.etcd.other_nodes.is_some()
+  );
+  if should_attempt_join {
+    _join_exiting_cluster(
+      &install_ctx,
+      &path_to_etcdctl,
+      &path_to_client_pkey,
+      &path_to_client_cert,
+      &path_to_ca_cert
+    )?;
+  }
+
   _enable_systemd_service()?;
 
   Ok(install_ctx)
