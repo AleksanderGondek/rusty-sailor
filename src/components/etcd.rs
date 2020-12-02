@@ -283,6 +283,43 @@ fn _create_systemd_service_file(
   )
 }
 
+fn _join_exiting_cluster(
+  install_ctx: &InstallCtx,
+  path_to_etcdctl: &Path,
+  peer_cert_path: &Path,
+  peer_cert_key_path: &Path,
+  ca_path: &Path,
+) -> Result<(), InstallError> {
+  let listen_peer_url = vec![
+    format!(
+      "https://{}:{}",
+      install_ctx.config.bind_address,
+      install_ctx.config.etcd.listen_peer_port
+    )
+  ];
+
+  let join_command = format!(
+    "{path_to_etcdctl} \
+    member add {member_name} \
+    --peer_urls={peer_urls} \
+    --peer-cert-file={peer_cert_path} \
+    --peer-key-file={peer_cert_key_path} \
+    --peer-trusted-ca-file={ca_path}",
+    path_to_etcdctl=_stringify(path_to_etcdctl)?,
+    member_name=&install_ctx.config.hostname,
+    peer_urls=listen_peer_url.join(", "),
+    peer_cert_path=_stringify(peer_cert_path)?,
+    peer_cert_key_path=_stringify(peer_cert_key_path)?,
+    ca_path=_stringify(ca_path)?
+  );
+  
+  let output = Command::new("sh")
+    .arg("-c")
+    .arg(join_command)
+    .output()?;
+  Ok(())
+}
+
 fn _enable_systemd_service(
 ) -> Result<(), InstallError> {
   let systemctl_commands = vec![
