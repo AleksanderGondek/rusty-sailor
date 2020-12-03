@@ -326,7 +326,7 @@ fn _enable_systemd_service(
   let systemctl_commands = vec![
     "systemctl daemon-reload",
     "systemctl enable etcd.service",
-    "systemctl start etcd.service"
+    "systemctl status etcd.service"
   ];
 
   for cmd in systemctl_commands {
