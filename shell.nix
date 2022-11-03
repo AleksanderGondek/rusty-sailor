@@ -2,7 +2,7 @@
 
 let
   pkgs = import (
-    fetchTarball { url = https://github.com/NixOS/nixpkgs/archive/nixos-20.09.tar.gz;}
+    fetchTarball { url = https://github.com/NixOS/nixpkgs/archive/nixos-22.05.tar.gz;}
   ) {};
   vendored_packages = import ./vendored.nix {};
 in
