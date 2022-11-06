@@ -1,9 +1,8 @@
 { }:
 
 let
-  pkgs = import (
-    fetchTarball { url = https://github.com/NixOS/nixpkgs/archive/nixos-22.05.tar.gz;}
-  ) {};
+  sources = import ./nix/sources.nix;
+  pkgs = import sources.nixpkgs {};
   containerd_pkg = pkgs.fetchurl {
     name = "containerd";
     url = "https://github.com/containerd/containerd/releases/download/v1.4.3/cri-containerd-cni-1.4.3-linux-amd64.tar.gz";

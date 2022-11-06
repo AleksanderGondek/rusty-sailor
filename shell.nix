@@ -1,9 +1,8 @@
 { }:
 
 let
-  pkgs = import (
-    fetchTarball { url = https://github.com/NixOS/nixpkgs/archive/nixos-22.05.tar.gz;}
-  ) {};
+  sources = import ./nix/sources.nix;
+  pkgs = import sources.nixpkgs {};
   vendored_packages = import ./vendored.nix {};
 in
 pkgs.mkShell {
